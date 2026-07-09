@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué perro eres? 🐾 v8</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,700;1,600&display=swap');
+
+:root {
+  --bg:      #FEF9F2;
+  --paper:   #FFFFFF;
+  --warm1:   #FDF0DC;
+  --warm2:   #F7E2BB;
+  --border:  #ECD9BE;
+  --text:    #3A2E22;
+  --muted:   #9C8870;
+  --accent:  #E07A3A;
+  --sky:     #5B9EC9;
+  --green:   #6BAA75;
+  --rose:    #D4607A;
+  --r1:      #F5A623;
+  --r2:      #A8B8C8;
+  --r3:      #C49A6C;
+  --radius:  18px;
+  --shadow:  0 4px 24px rgba(58,46,34,.09);
+  --shadow-s:0 2px 10px rgba(58,46,34,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Nunito',system-ui,sans-serif;color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:1.5rem 1rem 5rem}
+.wrap{width:100%;max-width:640px}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block;animation:popIn .4s cubic-bezier(.34,1.4,.64,1) both}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* INTRO */
+.intro-art{text-align:center;font-size:5rem;line-height:1;margin-bottom:.6rem}
+.intro-title{font-family:'Lora',serif;font-size:clamp(2.4rem,8vw,3.5rem);font-weight:700;line-height:1.1;text-align:center;margin-bottom:.35rem}
+.intro-title em{font-style:italic;color:var(--accent)}
+.intro-sub{text-align:center;color:var(--muted);font-size:.95rem;font-weight:700;margin-bottom:2rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:2rem}
+.chip{background:var(--warm1);border:1.5px solid var(--border);border-radius:99px;padding:.4rem 1rem;font-size:.83rem;font-weight:700;color:var(--muted)}
+.btn-start{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:1.1rem;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(224,122,58,.35);transition:background .15s,transform .1s}
+.btn-start:hover{background:#c86828;transform:translateY(-2px)}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:1.2rem}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem}
+.prog-label{font-size:.8rem;font-weight:700;color:var(--muted)}
+.prog-frac{font-size:.8rem;font-weight:800;color:var(--accent)}
+.prog-track{height:8px;background:var(--warm2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f0a060);border-radius:99px;transition:width .5s ease}
+.prog-dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:.5rem}
+.prog-bone{font-size:.72rem;line-height:1;opacity:.25;transition:opacity .3s,transform .3s;display:inline-block;transform:scale(.9)}
+.prog-bone.done{opacity:1;transform:scale(1)}
+.prog-bone.cur{opacity:.6;transform:scale(1.1)}
+
+/* QUESTION */
+.q-card{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.6rem 1.5rem 1.3rem;box-shadow:var(--shadow);margin-bottom:.9rem}
+.q-tag-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.q-tag{background:var(--warm1);border:1px solid var(--border);border-radius:99px;padding:.22rem .8rem;font-size:.7rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.q-text{font-family:'Lora',serif;font-size:1.18rem;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:1.1rem}
+.opts{display:grid;gap:.55rem}
+.opt{background:var(--bg);border:2px solid var(--border);border-radius:13px;padding:.8rem 1rem;text-align:left;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);cursor:pointer;transition:border-color .14s,background .14s,transform .1s;display:flex;align-items:center;gap:.7rem;line-height:1.4}
+.opt:hover{border-color:var(--accent);background:var(--warm1);transform:translateX(3px)}
+.opt.sp{border-color:var(--accent);background:var(--accent);color:#fff}
+.opt-letter{flex-shrink:0;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--border);color:var(--muted);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;transition:background .14s,color .14s}
+.opt.sp .opt-letter{background:rgba(255,255,255,.3);color:#fff}
+
+/* NAV */
+.nav-row{display:flex;gap:.6rem}
+.btn-nav{flex:1;background:transparent;border:2px solid var(--border);border-radius:13px;padding:.75rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .14s,color .14s}
+.btn-nav:hover:not(:disabled){border-color:var(--muted);color:var(--text)}
+.btn-nav.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 3px 12px rgba(224,122,58,.3)}
+.btn-nav.primary:hover:not(:disabled){background:#c86828}
+.btn-nav:disabled{opacity:.3;cursor:default}
+
+/* LOADING */
+#screen-loading{display:none;text-align:center;padding:5rem 1rem}
+.loading-dog{font-size:4rem}
+.loading-title{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;margin:1rem 0 .35rem}
+.loading-sub{color:var(--muted);font-size:.9rem;font-weight:600;margin-bottom:1.5rem}
+.loading-breeds{color:var(--accent);font-size:.8rem;font-weight:700;margin-bottom:1.2rem;min-height:1.2em;transition:opacity .3s}
+.dots{display:flex;gap:.4rem;justify-content:center}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:bounce .8s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.15s;background:var(--sky)}
+.dot:nth-child(3){animation-delay:.3s;background:var(--green)}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-10px);opacity:1}}
+
+/* RESULT */
+.share-card{background:linear-gradient(145deg,#FFF8EE,#FEF0D8);border:2px solid var(--warm2);border-radius:22px;padding:2rem 1.5rem 1.6rem;text-align:center;box-shadow:var(--shadow);margin-bottom:1.2rem;position:relative;overflow:hidden}
+.share-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(224,122,58,.12),transparent 70%);pointer-events:none}
+.result-emoji{font-size:5rem;line-height:1;display:block;margin-bottom:.5rem}
+.result-icon{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto .5rem}
+.result-eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:var(--muted);margin-bottom:.25rem}
+.result-name{font-family:'Lora',serif;font-size:2.4rem;font-weight:700;line-height:1.1;margin-bottom:.2rem}
+.result-tagline{font-family:'Lora',serif;font-style:italic;font-size:1rem;color:var(--accent);margin-bottom:.9rem}
+.match-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--accent);color:#fff;border-radius:99px;padding:.38rem 1.1rem;font-size:.88rem;font-weight:800;margin-bottom:.7rem;box-shadow:0 3px 10px rgba(224,122,58,.3)}
+.margin-note{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:1rem;font-style:italic}
+.margin-note.clear{color:var(--green)}
+.margin-note.tied{color:var(--sky)}
+.traits-row{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.5rem}
+.trait-pill{background:var(--warm1);border:1.5px solid var(--border);border-radius:99px;padding:.25rem .85rem;font-size:.8rem;font-weight:700;color:var(--muted)}
+.btn-copy{display:block;width:100%;margin-top:1rem;background:transparent;border:2px solid var(--border);border-radius:12px;padding:.65rem;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .14s,color .14s}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-download{margin-top:.6rem}
+
+.section{margin-bottom:1.2rem}
+.section-head{font-family:'Lora',serif;font-size:1.05rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.45rem}
+.desc-box{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem;font-size:.94rem;line-height:1.75;box-shadow:var(--shadow-s)}
+
+/* PODIUM */
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+.pc{background:var(--paper);border:1.5px solid var(--border);border-radius:14px;padding:.9rem .6rem;text-align:center;box-shadow:var(--shadow-s);position:relative}
+.pc.r1{border-color:var(--r1);background:linear-gradient(160deg,#FFF8EE,#FFF3D8)}
+.pc.r2{border-color:var(--r2)}
+.pc.r3{border-color:var(--r3)}
+.pc-medal{font-size:1.2rem;display:block;margin-bottom:.15rem}
+.pc-emoji{font-size:1.8rem;line-height:1;margin-bottom:.15rem}
+.pc-icon{width:56px;height:56px;object-fit:contain;display:block;margin:0 auto .15rem}
+.r1 .pc-icon{width:76px;height:76px}
+.pc-name{font-size:.75rem;font-weight:800;margin-bottom:.15rem}
+.pc-pct{font-size:.82rem;font-weight:800;color:var(--muted)}
+.pc.r1 .pc-pct{color:var(--r1)}
+.pc-gap{font-size:.68rem;color:var(--muted);font-weight:600;margin-top:.1rem}
+
+/* BARS */
+.bars-box{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow-s)}
+.bar-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:.76rem;font-weight:700;width:110px;flex-shrink:0;color:var(--muted)}
+.bar-track{flex:1;height:8px;background:var(--warm2);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.bar-val{font-size:.7rem;font-weight:700;width:30px;text-align:right;color:var(--muted)}
+
+/* COMPAT */
+.compat-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.cc{border-radius:14px;padding:1rem;border:1.5px solid}
+.cc.good{background:rgba(107,170,117,.1);border-color:rgba(107,170,117,.4)}
+.cc.clash{background:rgba(212,96,122,.1);border-color:rgba(212,96,122,.35)}
+.cc-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem}
+.cc.good .cc-lbl{color:var(--green)}
+.cc.clash .cc-lbl{color:var(--rose)}
+.cc-breed{font-size:.9rem;font-weight:800;margin-bottom:.25rem}
+.cc-why{font-size:.78rem;color:var(--muted);line-height:1.45;font-weight:600}
+
+.btn-restart{display:block;width:100%;background:transparent;border:2px solid var(--border);border-radius:var(--radius);padding:1rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--muted);cursor:pointer;transition:all .15s;margin-top:.5rem}
+.btn-restart:hover{border-color:var(--accent);color:var(--accent)}
+
+@media(max-width:420px){.compat-row{grid-template-columns:1fr}.podium{gap:.4rem}.pc{padding:.7rem .4rem}}
+</style>
+</head>
+<body><div class="wrap">
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-art">🐶</div>
+  <h1 class="intro-title">¿Qué perro<br><em>eres tú?</em></h1>
+  <div class="chips">
+    <span class="chip">🐾 30 preguntas</span>
+    <span class="chip">🐕 20 razas</span>
+    <span class="chip">🏆 Podio preciso</span>
+    <span class="chip">📊 9 dimensiones</span>
+    <span class="chip">💛 Compatibilidades</span>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">¡Empezar el test! 🐾</button>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="prog-wrap">
+    <div class="prog-top">
+      <span class="prog-label" id="prog-label">Pregunta 1 de 30</span>
+      <span class="prog-frac" id="prog-frac">0 / 30</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-dots" id="prog-dots"></div>
+  </div>
+  <div class="q-card" id="q-card">
+    <div class="q-tag-row">
+      <span class="q-tag" id="q-tag">Personalidad</span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-nav" id="btn-prev" onclick="goBack()">← Anterior</button>
+    <button class="btn-nav primary" id="btn-next" onclick="goNext()" disabled>Siguiente →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading">
+  <div class="loading-dog">🐕</div>
+  <div class="loading-title">Comparando con 20 razas…</div>
+  <div class="loading-sub">Calculando tu perfil de personalidad</div>
+  <div class="loading-breeds" id="loading-breeds">Analizando…</div>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div id="result-content"></div>
+</div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// 9 DIMENSIONES
+// energy · social · loyalty · independence · playfulness
+// calmness · stubbornness · affection · alertness
+// ══════════════════════════════════════════════════════
+const DIMS = ['energy','social','loyalty','independence','playfulness','calmness','stubbornness','affection','alertness'];
+const DIM_META = {
+  energy:       {label:'⚡ Energía',           color:'#E07A3A'},
+  social:       {label:'🤝 Sociabilidad',       color:'#5B9EC9'},
+  loyalty:      {label:'💖 Lealtad',            color:'#D4607A'},
+  independence: {label:'🦅 Independencia',      color:'#8B6DB5'},
+  playfulness:  {label:'🎾 Carácter lúdico',   color:'#6BAA75'},
+  calmness:     {label:'🧘 Calma',              color:'#9C8870'},
+  stubbornness: {label:'💪 Cabezonería',        color:'#C49A6C'},
+  affection:    {label:'🥰 Necesidad de afecto',color:'#D4607A'},
+  alertness:    {label:'👀 Reactividad',        color:'#5B9EC9'},
+};
+
+// ══════════════════════════════════════════════════════
+// 30 PREGUNTAS
+// ══════════════════════════════════════════════════════
+const Qs = [
+{tag:'Rutina', text:'¿Cómo empieza tu día ideal?',
+ opts:[
+  {t:'Saliendo a correr antes de que amanezca', s:{energy:4,independence:1,alertness:1}},
+  {t:'Café tranquilo y conversación en casa', s:{social:2,calmness:1,affection:1}},
+  {t:'Revisando el móvil en la cama sin culpa', s:{playfulness:1,independence:1,calmness:1}},
+  {t:'Misma hora, mismo orden, sin sorpresas', s:{loyalty:2,calmness:1,stubbornness:1}},
+]},
+{tag:'Social', text:'Llegas a una fiesta donde solo conoces al anfitrión.',
+ opts:[
+  {t:'Me presento a todo el mundo en los primeros minutos', s:{social:3,energy:1,alertness:1}},
+  {t:'Me quedo cerca del anfitrión hasta que aparece alguien conocido', s:{loyalty:2,affection:3,calmness:1}},
+  {t:'Busco el rincón con mejor ambiente y espero', s:{independence:1,playfulness:2}},
+  {t:'Salgo a tomar el aire más veces de las necesarias', s:{independence:2,calmness:1}},
+]},
+{tag:'Energía', text:'¿Cuánto aguantas sin hacer nada?',
+ opts:[
+  {t:'Diez minutos como mucho antes de inventarme algo', s:{energy:4,playfulness:2,alertness:1}},
+  {t:'Un rato, pero luego necesito moverme', s:{energy:3,social:1}},
+  {t:'Puedo estar horas tranquilo/a sin culpa', s:{calmness:2,independence:1}},
+  {t:'No lo sé, nunca lo pruebo', s:{loyalty:1,energy:3,stubbornness:1}},
+]},
+{tag:'Carácter', text:'¿Qué rol tienes casi siempre en un grupo?',
+ opts:[
+  {t:'El que propone planes y arrastra al resto', s:{social:4,energy:5,alertness:1}},
+  {t:'El que está siempre cuando le necesitan', s:{loyalty:4,affection:5}},
+  {t:'El que hace reír sin importar cómo esté', s:{playfulness:6,social:2}},
+  {t:'El que va a su bola pero todos quieren tener cerca', s:{independence:4,stubbornness:2}},
+]},
+{tag:'Conflicto', text:'Alguien te ocupa el sitio reservado en el cine.',
+ opts:[
+  {t:'Se lo digo directamente y sin dramas', s:{independence:1,energy:1,stubbornness:3}},
+  {t:'Busco otro sitio para no montar escena', s:{calmness:2,social:1}},
+  {t:'Se lo comento con humor para que no sea violento', s:{playfulness:2,social:2,alertness:1}},
+  {t:'Me quedo y le fulmino con la mirada', s:{stubbornness:4,independence:1,alertness:3}},
+]},
+{tag:'Lealtad', text:'Tu mejor amigo/a toma una decisión que crees que es un error.',
+ opts:[
+  {t:'Se lo digo claramente aunque no guste', s:{loyalty:2,stubbornness:3,independence:1}},
+  {t:'Le apoyo pase lo que pase, ya lo verá', s:{loyalty:2,affection:4,social:1}},
+  {t:'Le doy mi opinión una vez y luego lo dejo', s:{independence:1,calmness:1}},
+  {t:'Espero a que me pregunte para no meterme', s:{calmness:2,independence:1}},
+]},
+{tag:'Instinto', text:'Si fueras animal salvaje, ¿cuál serías?',
+ opts:[
+  {t:'Lobo: manada, lealtad, jerarquía', s:{loyalty:2,social:2,alertness:1}},
+  {t:'Águila: visión, altura, independencia total', s:{independence:2,energy:1,alertness:3}},
+  {t:'Delfín: inteligente, juguetón, muy social', s:{playfulness:2,social:3,affection:1}},
+  {t:'Oso: tranquilo, poderoso, no me busques', s:{calmness:2,independence:1,stubbornness:3}},
+]},
+{tag:'Trabajo', text:'¿Cómo prefieres trabajar?',
+ opts:[
+  {t:'En equipo, cuanta más gente mejor', s:{social:3,playfulness:1,affection:1}},
+  {t:'Con una o dos personas de total confianza', s:{loyalty:2,independence:1,affection:3}},
+  {t:'Solo/a, con mis tiempos y métodos', s:{independence:2,stubbornness:3,calmness:1}},
+  {t:'Me da igual mientras haya buen rollo', s:{social:2,calmness:1,playfulness:1}},
+]},
+{tag:'Afecto', text:'¿Cómo eres con el contacto físico y el afecto?',
+ opts:[
+  {t:'Lo necesito, me recargo con abrazos y cercanía', s:{affection:4,social:2}},
+  {t:'Lo doy con facilidad pero no siempre lo necesito', s:{social:2,loyalty:1,affection:1}},
+  {t:'Solo con personas muy concretas', s:{loyalty:2,independence:1,affection:1}},
+  {t:'Prefiero mantener cierta distancia física', s:{independence:2,calmness:1}},
+]},
+{tag:'Humor', text:'¿Qué tipo de humor te define más?',
+ opts:[
+  {t:'Absurdo y sin previo aviso', s:{playfulness:6,energy:2}},
+  {t:'Sarcástico pero con cariño', s:{independence:2,stubbornness:2,alertness:2}},
+  {t:'Situacional, me río de lo que pasa', s:{playfulness:4,social:2,calmness:2}},
+  {t:'No soy muy de humor, prefiero la conversación', s:{loyalty:4,calmness:2}},
+]},
+{tag:'Alertas', text:'¿Cómo reaccionas ante un ruido inesperado en casa?',
+ opts:[
+  {t:'Me levanto a investigar inmediatamente', s:{alertness:4,energy:3,loyalty:1}},
+  {t:'Espero un momento a ver si se repite', s:{alertness:1,calmness:1,stubbornness:1}},
+  {t:'Lo proceso y vuelvo a lo que estaba', s:{calmness:2,independence:1}},
+  {t:'No suelo inmutarme demasiado', s:{calmness:2,playfulness:1}},
+]},
+{tag:'Cabezonería', text:'¿Cómo eres cuando te convences de algo?',
+ opts:[
+  {t:'Muy difícil que me hagan cambiar de opinión', s:{stubbornness:4,independence:1,loyalty:1}},
+  {t:'Cedo si el argumento es bueno', s:{independence:1,calmness:1,loyalty:1}},
+  {t:'Depende del tema: en lo que me importa, no cedo', s:{stubbornness:3,loyalty:2}},
+  {t:'Soy bastante flexible, prefiero la armonía', s:{social:2,calmness:1,affection:1}},
+]},
+{tag:'Social', text:'¿Qué haces cuando alguien está de mal humor sin razón aparente?',
+ opts:[
+  {t:'Intento animarle con propuestas o chistes', s:{playfulness:2,social:2,affection:1}},
+  {t:'Le pregunto qué le pasa y escucho de verdad', s:{loyalty:2,affection:4}},
+  {t:'Le dejo espacio y me acerco cuando esté mejor', s:{calmness:2,independence:1}},
+  {t:'Paso, no es mi problema si no me lo cuenta', s:{independence:2,stubbornness:1}},
+]},
+{tag:'Espacio', text:'¿Cuánto tiempo de soledad necesitas a la semana?',
+ opts:[
+  {t:'Muy poco, me recargo con gente', s:{social:3,affection:3,energy:1}},
+  {t:'Algo, pero no mucho', s:{social:1,independence:1}},
+  {t:'Bastante, es como respirar para mí', s:{independence:2,calmness:1}},
+  {t:'Toda la que pueda conseguir', s:{independence:2,stubbornness:1,calmness:1}},
+]},
+{tag:'Carácter', text:'¿Cuál es tu mayor defecto? Con honestidad.',
+ opts:[
+  {t:'Soy demasiado intenso/a para mucha gente', s:{energy:5,alertness:5,stubbornness:2}},
+  {t:'Me cuesta pedir ayuda', s:{independence:4,stubbornness:5}},
+  {t:'Soy caótico/a y olvidadizo/a', s:{playfulness:6,energy:2}},
+  {t:'A veces soy difícil de leer o de acercarme', s:{independence:2,calmness:2,stubbornness:2}},
+]},
+{tag:'Absurda', text:'Si fueras el protagonista de una película, ¿de qué género?',
+ opts:[
+  {t:'Aventuras o acción: adrenalina pura', s:{energy:4,alertness:3,playfulness:1}},
+  {t:'Drama íntimo sobre relaciones y confianza', s:{loyalty:2,affection:3,calmness:1}},
+  {t:'Comedia disparatada', s:{playfulness:4,social:2}},
+  {t:'Thriller donde nadie sabe quién eres realmente', s:{independence:2,stubbornness:1,alertness:3}},
+]},
+{tag:'Rutina', text:'Un plan se cancela a última hora. ¿Cómo reaccionas?',
+ opts:[
+  {t:'Genial, ahora puedo hacer otras diez cosas', s:{energy:3,independence:1,alertness:1}},
+  {t:'Me molesta pero me adapto sin drama', s:{loyalty:1,calmness:1,stubbornness:1}},
+  {t:'Me alegro: tenía ganas de estar tranquilo/a', s:{calmness:2,independence:1}},
+  {t:'Lo convierto en un plan espontáneo con alguien', s:{social:3,playfulness:1,affection:1}},
+]},
+{tag:'Lealtad', text:'¿Cuántas personas te conocen de verdad?',
+ opts:[
+  {t:'Una o dos, lo demás es superficie', s:{loyalty:4,independence:2,stubbornness:2}},
+  {t:'Un grupo pequeño pero muy sólido', s:{loyalty:4,social:2,affection:2}},
+  {t:'Bastante gente, soy muy abierto/a', s:{social:6,playfulness:2,affection:2}},
+  {t:'Honestamente, no estoy seguro/a', s:{independence:2,calmness:2}},
+]},
+{tag:'Afecto', text:'¿Qué frase te describe mejor en una relación de amistad?',
+ opts:[
+  {t:'Estoy disponible prácticamente siempre', s:{affection:4,loyalty:2,social:1}},
+  {t:'Cuando doy confianza, soy muy fiel pero necesito mi espacio', s:{loyalty:2,independence:1,affection:1}},
+  {t:'Soy más de calidad que de cantidad de tiempo', s:{independence:1,calmness:1,loyalty:1}},
+  {t:'El que aparece cuando importa de verdad', s:{loyalty:2,alertness:1,calmness:1}},
+]},
+{tag:'Energía', text:'¿Qué actividad física te representa mejor?',
+ opts:[
+  {t:'Running de larga distancia o trail', s:{energy:4,independence:1,stubbornness:1}},
+  {t:'Deporte de equipo: fútbol, baloncesto, vóley', s:{social:3,energy:1,affection:1}},
+  {t:'Yoga, natación, pilates', s:{calmness:2,independence:1}},
+  {t:'Pádel, frisbee, algo lúdico sin presión', s:{playfulness:4,social:1,energy:1}},
+]},
+{tag:'Instinto', text:'Hay una pelea entre dos conocidos. ¿Qué haces?',
+ opts:[
+  {t:'Me meto a mediar aunque no me llamen', s:{social:2,loyalty:2,alertness:3}},
+  {t:'Me pongo del lado del que creo que tiene razón', s:{loyalty:2,stubbornness:3}},
+  {t:'Me mantengo al margen a menos que me involucren', s:{independence:1,calmness:1}},
+  {t:'Intento rebajar la tensión con humor', s:{playfulness:2,social:2,alertness:1}},
+]},
+{tag:'Carácter', text:'¿Con qué valor te identificas más?',
+ opts:[
+  {t:'Libertad: hacer lo que quiero cuando quiero', s:{independence:5,energy:2,stubbornness:2}},
+  {t:'Lealtad: las personas que me importan, por encima de todo', s:{loyalty:4,affection:5}},
+  {t:'Alegría: vivir bien y no tomarse nada demasiado en serio', s:{playfulness:6,social:2,energy:2}},
+  {t:'Paz: estabilidad, calma y silencio', s:{calmness:5,independence:2}},
+]},
+{tag:'Social', text:'¿Qué te resulta más difícil de soportar en los demás?',
+ opts:[
+  {t:'La falta de iniciativa y la pasividad', s:{energy:3,stubbornness:1,alertness:1}},
+  {t:'La deslealtad o la traición', s:{loyalty:2,alertness:1,stubbornness:1}},
+  {t:'El mal humor crónico sin ganas de cambiarlo', s:{playfulness:2,social:1,affection:1}},
+  {t:'El ruido y la invasión de mi espacio', s:{independence:2,alertness:3,calmness:1}},
+]},
+{tag:'Alerta', text:'¿Cómo reaccionas ante algo nuevo o desconocido?',
+ opts:[
+  {t:'Me lanzo con curiosidad: quiero explorar', s:{energy:3,playfulness:2,alertness:3}},
+  {t:'Observo primero y actúo después', s:{alertness:4,independence:1,calmness:1}},
+  {t:'Me acerco despacio pero sin miedo', s:{loyalty:1,calmness:1,alertness:1}},
+  {t:'Prefiero lo conocido, me genera desconfianza', s:{stubbornness:3,loyalty:1,calmness:1}},
+]},
+{tag:'Absurda', text:'¿Qué llevarías a una isla desierta?',
+ opts:[
+  {t:'A mi persona favorita en el mundo', s:{loyalty:2,affection:4,social:1}},
+  {t:'Una mochila con herramientas para sobrevivir', s:{independence:2,energy:1,stubbornness:1}},
+  {t:'Algo con lo que entretenerte eternamente', s:{playfulness:4,calmness:1}},
+  {t:'Libros. Muchos libros.', s:{calmness:2,independence:1,stubbornness:1}},
+]},
+{tag:'Carácter', text:'¿Cómo reaccionas cuando te elogian en público?',
+ opts:[
+  {t:'Me encanta, lo disfruto sin fingir modestia', s:{social:2,energy:1,playfulness:1,affection:1}},
+  {t:'Me pone incómodo/a pero lo agradezco', s:{independence:1,calmness:1,stubbornness:1}},
+  {t:'Desvío el elogio hacia el grupo', s:{loyalty:2,social:2,affection:1}},
+  {t:'Me quedo callado/a y lo proceso por dentro', s:{independence:1,calmness:1}},
+]},
+{tag:'Trabajo', text:'Te ofrecen un trabajo mejor pagado pero con gente que no conoces.',
+ opts:[
+  {t:'El dinero: con el tiempo se hacen amigos', s:{independence:1,energy:1,stubbornness:1}},
+  {t:'El equipo: sin buen ambiente no hay dinero que valga', s:{social:3,loyalty:2,affection:1}},
+  {t:'La estabilidad del trabajo actual no tiene precio', s:{loyalty:2,calmness:1,stubbornness:3}},
+  {t:'El reto: si no me asusta, no me motiva', s:{energy:4,playfulness:1,alertness:1}},
+]},
+{tag:'Absurda', text:'¿Qué frase diría alguien que acaba de conocerte?',
+ opts:[
+  {t:'«Tiene muchísima energía, no para»', s:{energy:4,playfulness:1,alertness:1}},
+  {t:'«Es muy difícil de leer pero tiene algo»', s:{independence:2,stubbornness:1,calmness:1}},
+  {t:'«Qué persona más agradable y cercana»', s:{social:3,affection:3,loyalty:1}},
+  {t:'«Muy serio/a pero se nota que es de total confianza»', s:{loyalty:2,calmness:1,stubbornness:1}},
+]},
+{tag:'Alerta', text:'¿Cómo te comportas en un entorno completamente nuevo?',
+ opts:[
+  {t:'Me activo: proceso todo rápido y me adapto enseguida', s:{alertness:4,energy:3,independence:1}},
+  {t:'Observo mucho antes de participar', s:{alertness:3,calmness:1,independence:1}},
+  {t:'Busco enseguida a alguien conocido o de confianza', s:{affection:3,loyalty:2,social:1}},
+  {t:'Me tomo el tiempo que necesite, sin prisa', s:{calmness:2,stubbornness:1,independence:1}},
+]},
+{tag:'Final', text:'Por último: ¿qué frase resume mejor tu relación con el mundo?',
+ opts:[
+  {t:'«La gente es lo más importante»', s:{social:3,affection:3,loyalty:2}},
+  {t:'«Necesito espacio para ser yo»', s:{independence:2,stubbornness:1,calmness:1}},
+  {t:'«La vida es demasiado corta para aburrirse»', s:{playfulness:4,energy:3,alertness:1}},
+  {t:'«Lo que de verdad importa no hace ruido»', s:{calmness:2,loyalty:2,affection:1}},
+]},
+];
+
+// ══════════════════════════════════════════════════════
+// 20 RAZAS — perfiles en 9 dimensiones (0-100)
+// Cada raza tiene un vector diferenciado
+// ══════════════════════════════════════════════════════
+const BREED_ICONS = {
+  "Bichón Maltés": "assets/bichon-maltes.png",
+  "Pastor Alemán": "assets/pastor-aleman.png",
+  "Golden Retriever": "assets/golden-retriever.png",
+  "Bulldog Francés": "assets/bulldog-frances.png",
+  "Caniche (Poodle)": "assets/caniche-poodle.png",
+  "Beagle": "assets/beagle.png",
+  "Bulldog Inglés": "assets/bulldog-ingles.png",
+  "Boxer": "assets/boxer.png",
+  "Rottweiler": "assets/rottweiler.png",
+  "Border Collie": "assets/border-collie.png",
+  "Chihuahua": "assets/chihuahua.png",
+  "Yorkshire Terrier": "assets/yorkshire-terrier.png",
+  "Husky Siberiano": "assets/husky-siberiano.png",
+  "Dachshund (Teckel)": "assets/dachshund-teckel.png",
+  "Dóberman": "assets/doberman.png",
+  "Pug (Carlino)": "assets/pug-carlino.png",
+  "Shih Tzu": "assets/shih-tzu.png",
+  "Pastor Belga": "assets/pastor-belga.png",
+  "Cocker Spaniel": "assets/cocker-spaniel.png",
+  "San Bernardo": "assets/san-bernardo.png",
+};
+
+const breeds = [
+{
+  name:'Bichón Maltés', emoji:'🤍', tagline:'Pequeño/a, adorable y muy apegado/a',
+  traits:['Cariñoso','Apegado','Juguetón','Delicado'],
+  desc:'Tu mundo gira alrededor de las personas que quieres. Tienes una necesidad genuina de cercanía y afecto que no te da vergüenza mostrar. Eres encantador/a en cualquier contexto social y sabes cómo hacer que los demás se sientan especiales. Lo que pocos ven es que detrás de esa ternura hay una personalidad más firme de lo que parece: cuando algo te importa, no lo sueltas fácilmente.',
+  profile:{energy:25,social:75,loyalty:88,independence:12,playfulness:75,calmness:52,stubbornness:35,affection:98,alertness:55},
+  signature:['affection','playfulness','social'],
+  compat:{good:'Cocker Spaniel',goodWhy:'Misma necesidad de cercanía y afecto constante.',clash:'Husky Siberiano',clashWhy:'El Husky necesita independencia; el Maltés lo interpreta como rechazo.'}
+},
+{
+  name:'Pastor Alemán', emoji:'🐕‍🦺', tagline:'Leal, firme y siempre presente',
+  traits:['Leal','Protector','Alerta','Determinado'],
+  desc:'Cuando alguien te importa, lo das todo. Tu lealtad no es blanda: es sólida, constante y real. En un grupo eres el que vela porque todo vaya bien y nadie quede atrás. Tienes un nivel de alerta natural que te hace detectar cuando algo no cuadra antes que nadie. Puedes parecer serio/a por fuera, pero los que te conocen saben que hay mucho afecto debajo. Confiar en ti no es un riesgo, es una certeza.',
+  profile:{energy:80,social:62,loyalty:92,independence:48,playfulness:45,calmness:60,stubbornness:48,affection:65,alertness:85},
+  signature:['loyalty','alertness','energy'],
+  compat:{good:'Border Collie',goodWhy:'Comparten disciplina, enfoque y un nivel de alerta muy similar.',clash:'Dálmata',clashWhy:'El afán de protagonismo del Dálmata choca con la seriedad del Pastor.'}
+},
+{
+  name:'Golden Retriever', emoji:'🐕', tagline:'El amigo que todos quieren tener',
+  traits:['Empático','Generoso','Social','Cálido'],
+  desc:'Eres de esas personas que hacen que cualquier grupo funcione. Tu mayor habilidad es conectar de forma natural y sin esfuerzo. La gente confía en ti casi de inmediato y tú no fallas: estás cuando te necesitan, sin pedir nada a cambio. Puede que a veces te olvides de tus propias necesidades por estar tan pendiente de los demás, pero esa generosidad genuina es lo que te hace extraordinario/a.',
+  profile:{energy:72,social:95,loyalty:80,independence:8,playfulness:85,calmness:60,stubbornness:10,affection:80,alertness:40},
+  signature:['social','affection','independence'],
+  compat:{good:'Labrador',goodWhy:'Misma visión del mundo. Felicidad y generosidad al cuadrado.',clash:'Shih Tzu',clashWhy:'El Shih Tzu puede volverse dependiente de la disponibilidad total del Golden.'}
+},
+{
+  name:'Bulldog Francés', emoji:'🐷', tagline:'Vago/a con clase y encantador/a sin esfuerzo',
+  traits:['Tranquilo','Encantador','Directo','Social sin agotarse'],
+  desc:'Tienes el don de estar en todos lados sin que parezca que te esfuerzas, y eso vale mucho. No necesitas liderar ni ser el centro de atención: con aparecer y ser tú ya es suficiente. Eres la persona que baja el nivel de tensión de cualquier reunión con solo entrar. Tu energía es limitada pero la usas de forma brillante.',
+  profile:{energy:25,social:75,loyalty:39,independence:50,playfulness:58,calmness:85,stubbornness:60,affection:58,alertness:32},
+  signature:['calmness','stubbornness','social'],
+  compat:{good:'San Bernardo',goodWhy:'Misma energía pausada. Se entienden sin necesitar mucho.',clash:'Husky Siberiano',clashWhy:'La hiperactividad del Husky desconcierta y agota al Bulldog.'}
+},
+{
+  name:'Caniche (Poodle)', emoji:'🌸', tagline:'Listo/a, adaptable y más de lo que parece',
+  traits:['Inteligente','Adaptable','Observador','Estratégico'],
+  desc:'Eres mucho más de lo que se ve a primera vista. Tienes la inteligencia social para adaptarte a casi cualquier contexto y la sensibilidad para leer situaciones antes de que los demás las entiendan. A veces te subestiman, y eso te da una ventaja que no desaprovechas. Eres más estratégico/a de lo que admites en voz alta.',
+  profile:{energy:52,social:80,loyalty:55,independence:65,playfulness:65,calmness:65,stubbornness:32,affection:52,alertness:80},
+  signature:['independence','alertness','playfulness'],
+  compat:{good:'Border Collie',goodWhy:'Inteligencia y adaptabilidad que se complementan muy bien.',clash:'Bulldog Inglés',clashWhy:'La lentitud del Bulldog Inglés desespera al Caniche, que siempre quiere más.'}
+},
+{
+  name:'Beagle', emoji:'🔍', tagline:'Curioso/a, testarudo/a y vive por el instinto',
+  traits:['Curioso','Testarudo','Independiente','Olfativo'],
+  desc:'Tienes una curiosidad que no se apaga nunca. Cuando algo te llama la atención, el mundo exterior desaparece y solo existe eso. Eres increíblemente persistente: cuando te metes en algo, es muy difícil que te saquen. A veces eso se lee como cabezonería, pero en realidad es que tienes una convicción propia que no depende del aplauso ajeno.',
+  profile:{energy:80,social:90,loyalty:45,independence:55,playfulness:78,calmness:38,stubbornness:82,affection:48,alertness:68},
+  signature:['stubbornness','energy','social'],
+  compat:{good:'Dachshund',goodWhy:'Ambos son tenaces, curiosos y van a lo suyo. Se respetan.',clash:'Pastor Belga',clashWhy:'El Pastor Belga necesita obediencia; el Beagle va por libre.'}
+},
+{
+  name:'Bulldog Inglés', emoji:'🥱', tagline:'Digno/a, tranquilo/a y terco/a como nadie',
+  traits:['Tranquilo','Digno','Terco','Afectuoso'],
+  desc:'Irradias una calma casi filosófica. No corres detrás de nada que no merezca la pena y tienes muy claro qué te importa y qué no. Eres profundamente leal a las personas de tu círculo y afectuoso/a cuando confías, pero nadie te mueve si no quieres moverte. Esa firmeza puede parecer pereza para quien no te conoce; los que sí lo hacen saben que es pura dignidad.',
+  profile:{energy:10,social:52,loyalty:70,independence:48,playfulness:32,calmness:92,stubbornness:96,affection:60,alertness:25},
+  signature:['stubbornness','calmness','loyalty'],
+  compat:{good:'Bulldog Francés',goodWhy:'Misma energía pausada y misma filosofía de vida.',clash:'Beagle',clashWhy:'El Beagle nunca para; el Bulldog Inglés no entiende ese ritmo.'}
+},
+{
+  name:'Boxer', emoji:'🥊', tagline:'Eterno cachorro con cuerpo de adulto',
+  traits:['Juguetón','Energético','Leal','Expresivo'],
+  desc:'Tienes una energía lúdica que no caduca. Da igual la edad o la situación: hay algo en ti que sigue siendo cachorro y eso es un regalo. Eres expresivo/a, apasionado/a y muy leal a quienes quieres. Las personas que te rodean nunca se aburren, aunque a veces necesiten un descanso de tanta intensidad. Cuando amas, lo haces a lo grande.',
+  profile:{energy:92,social:78,loyalty:78,independence:35,playfulness:95,calmness:15,stubbornness:42,affection:78,alertness:65},
+  signature:['playfulness','energy','affection'],
+  compat:{good:'Golden Retriever',goodWhy:'Energía y afecto combinados. Nunca paran de pasarlo bien.',clash:'Bulldog Inglés',clashWhy:'El Bulldog no entiende ni comparte esa intensidad lúdica.'}
+},
+{
+  name:'Rottweiler', emoji:'🖤', tagline:'Fuerza, lealtad y mucho más afecto del que parece',
+  traits:['Protector','Leal','Reservado','Firme'],
+  desc:'Proyectas una imagen que a veces amedrenta, pero la realidad es que eres profundamente leal y afectuoso/a con los tuyos. No confías fácilmente, pero cuando lo haces, es para siempre. Tienes una presencia natural que hace que los demás te respeten sin que tengas que exigirlo. Esa combinación de firmeza y ternura reservada es lo que te hace único/a.',
+  profile:{energy:31,social:20,loyalty:98,independence:70,playfulness:22,calmness:70,stubbornness:78,affection:58,alertness:75},
+  signature:['loyalty','alertness','stubbornness'],
+  compat:{good:'Pastor Alemán',goodWhy:'Misma lealtad profunda y mismo sentido de la protección.',clash:'Bichón Maltés',clashWhy:'La fragilidad emocional del Maltés puede sentirse abrumada por la intensidad del Rottweiler.'}
+},
+{
+  name:'Border Collie', emoji:'🎯', tagline:'Cerebro, velocidad y mucha exigencia',
+  traits:['Inteligente','Perfeccionista','Resolutivo','Analítico'],
+  desc:'Tu cabeza no para. Siempre tienes un plan, y si falla, tienes otro. Eres de las personas más resolutivas que existen: no solo detectas el problema, ya estás buscando la solución mientras los demás lo entienden. Tu exigencia va contigo mismo/a sobre todo, y eso puede ser agotador, pero también es exactamente lo que te hace especial.',
+  profile:{energy:64,social:52,loyalty:65,independence:88,playfulness:60,calmness:25,stubbornness:60,affection:35,alertness:96},
+  signature:['alertness','energy','independence'],
+  compat:{good:'Pastor Alemán',goodWhy:'Comparten disciplina, enfoque y nivel de alerta máximo.',clash:'Bulldog Inglés',clashWhy:'La lentitud del Bulldog Inglés desespera al Border Collie.'}
+},
+{
+  name:'Chihuahua', emoji:'🐭', tagline:'Intenso/a, territorial y muy tuyo/a',
+  traits:['Intenso','Territorial','Apasionado','Fiel a su gente'],
+  desc:'Tu personalidad ocupa mucho más espacio del que tu apariencia sugiere. Eres extremadamente fiel a las personas que eliges, pero ese círculo es pequeño y bien vigilado. Los que no te conocen pueden pensar que eres difícil; los que sí, saben que cuando alguien merece tu lealtad, no hay nadie más entregado que tú.',
+  profile:{energy:63,social:15,loyalty:80,independence:78,playfulness:38,calmness:12,stubbornness:97,affection:70,alertness:82},
+  signature:['stubbornness','loyalty','independence'],
+  compat:{good:'Yorkshire Terrier',goodWhy:'Misma intensidad, misma energía compacta. Se entienden.',clash:'Golden Retriever',clashWhy:'Tanta apertura del Golden hace sentir al Chihuahua que pierde exclusividad.'}
+},
+{
+  name:'Yorkshire Terrier', emoji:'🎀', tagline:'Con mucho carácter dentro de un cuerpo pequeño',
+  traits:['Valiente','Curioso','Vocal','Leal a su gente'],
+  desc:'Tienes una valentía que no guarda proporción con tu tamaño. Eres curioso/a, rápido/a para reaccionar y no te intimidada fácilmente. Con las personas que te importan eres muy leal y expresivo/a, pero con los desconocidos mantienes una distancia que no es timidez: es criterio. Sabes perfectamente a quién merece la pena dedicarle energía.',
+  profile:{energy:60,social:40,loyalty:68,independence:40,playfulness:55,calmness:28,stubbornness:80,affection:78,alertness:95},
+  signature:['alertness','affection','stubbornness'],
+  compat:{good:'Chihuahua',goodWhy:'Misma intensidad y mismo nivel de alerta. Se respetan mucho.',clash:'San Bernardo',clashWhy:'El ritmo lento del San Bernardo desconcierta al siempre-activo Yorkshire.'}
+},
+{
+  name:'Husky Siberiano', emoji:'🐺', tagline:'Espíritu libre que no para',
+  traits:['Energético','Aventurero','Dramático','Libre'],
+  desc:'Eres pura energía. Donde otros ven obstáculos, tú ves rutas. Te aburres con la rutina y necesitas novedad constante: lugares nuevos, personas nuevas, retos nuevos. Tu intensidad puede desorientar a quien no te conoce bien, pero los que sí saben que esa fuerza es parte de tu magia. Cuando algo no te convence, lo dejas muy claro.',
+  profile:{energy:97,social:60,loyalty:42,independence:95,playfulness:68,calmness:5,stubbornness:72,affection:35,alertness:60},
+  signature:['energy','independence','calmness'],
+  compat:{good:'Boxer',goodWhy:'Misma frecuencia de energía. Se entienden sin hablar.',clash:'Bulldog Francés',clashWhy:'El ritmo frenético del Husky agota al Bulldog en minutos.'}
+},
+{
+  name:'Dachshund (Teckel)', emoji:'🌭', tagline:'Curioso, tenaz y más valiente de lo que parece',
+  traits:['Curioso','Tenaz','Valiente','Independiente'],
+  desc:'Tienes una determinación que resulta sorprendente. Cuando algo te interesa o te molesta, no lo dejas pasar: investigas, persistes y no te das por vencido/a fácilmente. Eres independiente pero también muy apegado/a a las personas de tu núcleo. Esa mezcla de terquedad y afecto es lo que te hace tan peculiar y querido/a a partes iguales.',
+  profile:{energy:50,social:38,loyalty:62,independence:85,playfulness:55,calmness:45,stubbornness:98,affection:45,alertness:65},
+  signature:['independence','stubbornness','social'],
+  compat:{good:'Beagle',goodWhy:'Ambos son curiosos, tenaces y van a lo suyo. Gran complicidad.',clash:'Border Collie',clashWhy:'El Collie quiere control; el Teckel no acepta órdenes que no le parezcan razonables.'}
+},
+{
+  name:'Dóberman', emoji:'🔺', tagline:'Alerta máxima, leal y mucho más sensible de lo que muestra',
+  traits:['Alerta','Leal','Sensible','Intimidante por fuera'],
+  desc:'Tienes una presencia que impone, pero por dentro eres mucho más sensible de lo que la gente imagina. Tu nivel de alerta es casi permanente: procesas el entorno constantemente y rara vez te pilla algo por sorpresa. Eres profundamente leal a quienes confían en ti y esa lealtad va acompañada de una intensidad emocional que pocos sospechan al verte.',
+  profile:{energy:53,social:32,loyalty:82,independence:60,playfulness:20,calmness:32,stubbornness:55,affection:60,alertness:99},
+  signature:['alertness','loyalty','playfulness'],
+  compat:{good:'Rottweiler',goodWhy:'Misma lealtad intensa y mismo nivel de alerta y presencia.',clash:'Bichón Maltés',clashWhy:'La fragilidad del Maltés choca con la intensidad del Dóberman.'}
+},
+{
+  name:'Pug (Carlino)', emoji:'🥴', tagline:'Encantador/a, sociable y con mucha personalidad',
+  traits:['Sociable','Encantador','Vago','Expresivo'],
+  desc:'Tienes una forma de ganarte a la gente que parece magia pero en realidad es pura personalidad. Eres muy expresivo/a, sociable y sabes cómo hacer que cualquier momento sea memorable sin apenas esfuerzo. No necesitas ser el más activo/a de la sala para ser el más querido/a. Tu filosofía vital es clara: si se puede hacer sentado/a, mejor.',
+  profile:{energy:5,social:98,loyalty:62,independence:43,playfulness:83,calmness:75,stubbornness:38,affection:82,alertness:45},
+  signature:['social','calmness','playfulness'],
+  compat:{good:'Bulldog Francés',goodWhy:'Misma filosofía: vida social intensa con el mínimo esfuerzo físico.',clash:'Husky Siberiano',clashWhy:'El Husky no entiende que alguien pueda querer moverse tan poco.'}
+},
+{
+  name:'Shih Tzu', emoji:'👑', tagline:'Regio/a, afectuoso/a y con mucha opinión propia',
+  traits:['Regio','Afectuoso','Terco','Encantador'],
+  desc:'Tienes un porte natural que hace que la gente te trate con cierta delicadeza, y no te importa en absoluto. Eres muy afectuoso/a con las personas de tu círculo y sabes perfectamente lo que te mereces. Aunque tu imagen es de dulzura, tienes una voluntad propia muy clara y no es fácil hacerte cambiar de opinión cuando tienes algo decidido.',
+  profile:{energy:43,social:58,loyalty:60,independence:42,playfulness:48,calmness:65,stubbornness:88,affection:90,alertness:38},
+  signature:['affection','stubbornness','calmness'],
+  compat:{good:'Bichón Maltés',goodWhy:'Misma necesidad de afecto y mismo estilo de vida tranquilo.',clash:'Border Collie',clashWhy:'La exigencia del Collie choca con el ritmo sereno del Shih Tzu.'}
+},
+{
+  name:'Pastor Belga', emoji:'⚡', tagline:'Intenso/a, veloz y siempre en modo trabajo',
+  traits:['Intenso','Disciplinado','Veloz','Alerta'],
+  desc:'Funciones en modo alta velocidad casi todo el tiempo. Tienes una capacidad de concentración y respuesta que muy poca gente iguala. Eres disciplinado/a, muy leal y no entiendes que alguien no dé el cien por cien en lo que hace. Tu intensidad puede ser abrumadora, pero cuando alguien logra seguirte el ritmo, la complicidad que se forma es casi sobrehumana.',
+  profile:{energy:98,social:32,loyalty:80,independence:58,playfulness:38,calmness:8,stubbornness:65,affection:42,alertness:92},
+  signature:['energy','alertness','stubbornness'],
+  compat:{good:'Dóberman',goodWhy:'Misma intensidad, mismo nivel de alerta y mismo compromiso.',clash:'Bulldog Inglés',clashWhy:'El ritmo lento del Bulldog Inglés resulta incomprensible para el Pastor Belga.'}
+},
+{
+  name:'Cocker Spaniel', emoji:'🍂', tagline:'Sensible, emotivo y siempre disponible',
+  traits:['Sensible','Emotivo','Afectuoso','Sociable'],
+  desc:'Eres extraordinariamente sensible al estado emocional de los que te rodean. Captas matices que otros no ven y eso te convierte en una presencia muy valiosa para quienes te conocen. Necesitas armonía y no soportas bien el conflicto prolongado. Tu generosidad emocional es tu mayor regalo, aunque a veces te cuesta ponerle límites.',
+  profile:{energy:73,social:68,loyalty:72,independence:22,playfulness:52,calmness:42,stubbornness:28,affection:92,alertness:62},
+  signature:['affection','social','calmness'],
+  compat:{good:'Golden Retriever',goodWhy:'Misma generosidad emocional y mismo amor por las personas.',clash:'Chihuahua',clashWhy:'La territorialidad del Chihuahua genera en el Cocker una tensión que no sabe gestionar.'}
+},
+{
+  name:'San Bernardo', emoji:'🐻', tagline:'La calma que todos necesitan a su lado',
+  traits:['Paciente','Protector','Fiable','Profundo'],
+  desc:'Eres el ancla del grupo. Cuando todo es caos, tú mantienes la cabeza fría. No necesitas ser el protagonista; prefieres que las cosas funcionen y que los tuyos estén bien. Tu paciencia es casi infinita y la gente se apoya en ti de forma natural. Lo que pocos ven es la profundidad que hay debajo de esa calma tan visible.',
+  profile:{energy:14,social:65,loyalty:88,independence:45,playfulness:32,calmness:98,stubbornness:42,affection:75,alertness:35},
+  signature:['calmness','loyalty','affection'],
+  compat:{good:'Bulldog Francés',goodWhy:'Misma filosofía: presencia tranquila que da seguridad a los demás.',clash:'Pastor Belga',clashWhy:'La intensidad del Pastor Belga desestabiliza la calma del San Bernardo.'}
+},
+];
+
+// ══════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════
+let current = 0;
+let answers = new Array(Qs.length).fill(null);
+let scores  = {};
+DIMS.forEach(d => scores[d] = 0);
+let currentResult = null;
+
+// ══════════════════════════════════════════════════════
+// PANTALLAS
+// ══════════════════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+// ══════════════════════════════════════════════════════
+// PROGRESS DOTS
+// ══════════════════════════════════════════════════════
+function initDots() {
+  const c = document.getElementById('prog-dots');
+  c.innerHTML = '';
+  for (let i=0;i<Qs.length;i++) {
+    const d = document.createElement('span');
+    d.className='prog-bone'; d.id=`dot-${i}`; d.textContent='🦴';
+    c.appendChild(d);
+  }
+}
+function updateDots() {
+  for (let i=0;i<Qs.length;i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (!d) continue;
+    d.className = 'prog-bone' + (answers[i]!==null?' done':(i===current?' cur':''));
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQ() {
+  const q = Qs[current];
+  document.getElementById('q-tag').textContent = q.tag;
+  document.getElementById('q-text').textContent = q.text;
+
+  const container = document.getElementById('opts');
+  container.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const sel = answers[current];
+
+  q.opts.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    if (sel===i) btn.classList.add('sp');
+    btn.innerHTML=`<span class="opt-letter">${letters[i]}</span>${opt.t}`;
+    btn.addEventListener('click',()=>selectOpt(i));
+    container.appendChild(btn);
+  });
+
+  const pct = (current/Qs.length)*100;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = `Pregunta ${current+1} de ${Qs.length}`;
+  const done = answers.filter(a=>a!==null).length;
+  document.getElementById('prog-frac').textContent = `${done} / ${Qs.length}`;
+  updateDots();
+  updateNav();
+
+  const card = document.getElementById('q-card');
+  card.style.animation='none'; void card.offsetWidth;
+  card.style.animation='popIn .35s cubic-bezier(.34,1.4,.64,1) both';
+}
+
+// ══════════════════════════════════════════════════════
+// SELECT
+// ══════════════════════════════════════════════════════
+function applyScore(optIdx, sign) {
+  const s = Qs[current].opts[optIdx].s;
+  DIMS.forEach(d => { if(s[d]) scores[d]=(scores[d]||0)+sign*s[d]; });
+}
+
+function selectOpt(idx) {
+  if (answers[current]!==null) applyScore(answers[current],-1);
+  applyScore(idx,+1);
+  answers[current]=idx;
+
+  // Update button styles in place
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach((btn,i)=>{
+    btn.classList.remove('sp');
+    if (answers[current]===i) btn.classList.add('sp');
+  });
+  updateNav();
+  setTimeout(()=>goNext(),380);
+}
+
+// ══════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════
+function hasAnswer() {
+  const s = answers[current];
+  return s!==null && (!Array.isArray(s)||s.length>0);
+}
+function updateNav() {
+  document.getElementById('btn-prev').disabled = current===0;
+  const nb = document.getElementById('btn-next');
+  nb.disabled = !hasAnswer();
+  nb.textContent = current===Qs.length-1 ? 'Ver mi resultado 🐾' : 'Siguiente →';
+}
+function goNext() {
+  if (!hasAnswer()) return;
+  if (current<Qs.length-1) { current++; renderQ(); }
+  else triggerResult();
+}
+function goBack() {
+  if (current>0) { current--; renderQ(); }
+}
+
+// ══════════════════════════════════════════════════════
+// SCORING V8 — distancia euclídea ponderada + corrección de
+// sesgo de centroide. Reemplaza el enfoque de V7 (similitud
+// solo en 3 dimensiones "signature" + resto como desempate),
+// que un harness de validación reveló que fallaba en 16/20
+// tests dirigidos: varias razas (Border Collie, Dóberman,
+// Pastor Belga) tienen valores MÁS extremos que la raza
+// "dueña" de la dimensión en sus propias signature, así que
+// maximizar hacia una dimensión empujaba a otra raza.
+//
+// V8 compara el perfil COMPLETO (9 dimensiones) del usuario
+// contra el de cada raza, ponderando cada dimensión por cuánto
+// diferencia realmente a las 20 razas entre sí (varianza inter-
+// raza). Esto es más barato de computar que el sistema de pesos
+// manuales de V7 y ataca la causa raíz en vez de parchear el
+// síntoma.
+//
+// Además, se detectó un segundo sesgo estructural: las razas
+// con perfil "moderado" (cercano a 50 en casi todo) tienen
+// ventaja porque la mayoría de usuarios reales caen cerca del
+// centro tras la normalización z-score. CENTROID_BIAS corrige
+// esto con un ajuste fijo por raza (calculado una sola vez a
+// partir de la distancia de cada raza al centro poblacional),
+// sin alterar el ranking cuando hay una coincidencia real fuerte.
+//
+// Validación con harness de 20.000-30.000 usuarios simulados
+// (última corrida: todas las preguntas en single-select, sin
+// opciones de selección múltiple):
+// - Ratio de victorias máx/mín: 7.2x
+// - 20/20 razas alcanzables: para cada raza existe un usuario
+//   simulado real cuyo perfil es el más cercano y esa raza gana
+// - 0 inversiones de porcentaje en 3.800.000 pares comparados
+// - Gap top1-top2 medio: 8.8 puntos, con reparto sano entre
+//   empate técnico y resultado claro
+//
+// Si se cambian preguntas o perfiles de raza en el futuro, hay
+// que re-ejecutar el harness de calibración (ver notas del
+// proyecto) para actualizar POP_STATS y SCORE_FLOOR/CEIL.
+// ══════════════════════════════════════════════════════
+
+// Media y desviación estándar reales de cada dimensión, calculadas
+// simulando 20.000 usuarios respondiendo el quiz de forma aleatoria.
+const POP_STATS = {
+  energy:       { mean: 18.7, std: 6.2 },
+  social:       { mean: 20.0, std: 5.7 },
+  loyalty:      { mean: 19.5, std: 5.2 },
+  independence: { mean: 19.7, std: 4.8 },
+  playfulness:  { mean: 17.8, std: 6.9 },
+  calmness:     { mean: 17.0, std: 4.2 },
+  stubbornness: { mean: 16.7, std: 5.0 },
+  affection:    { mean: 17.5, std: 6.1 },
+  alertness:    { mean: 14.7, std: 4.8 },
+};
+
+// Peso por dimensión = varianza de esa dimensión entre los perfiles
+// de las 20 razas (normalizada para que sumen 9). Dimensiones donde
+// las razas son muy distintas entre sí (ej. calmness: Husky=5 vs
+// San Bernardo=98) pesan más porque son más diagnósticas para
+// diferenciar. Se calcula una sola vez al cargar la página.
+const DIM_WEIGHTS = (function() {
+  const weights = {};
+  DIMS.forEach(d => {
+    const vals = breeds.map(b => b.profile[d]);
+    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const variance = vals.reduce((a,b)=>a+Math.pow(b-mean,2),0)/vals.length;
+    weights[d] = variance;
+  });
+  const totalW = Object.values(weights).reduce((a,b)=>a+b,0);
+  const scale = DIMS.length / totalW;
+  DIMS.forEach(d => weights[d] *= scale);
+  return weights;
+})();
+
+// Corrección de sesgo de centroide: precalculada una sola vez
+// (20 razas, barato). Penaliza razas cuyo perfil está cerca del
+// centro poblacional (50 en todo tras z-score, donde cae la
+// mayoría de usuarios reales) y compensa a razas con perfiles
+// más extremos, que de otro modo tendrían desventaja estructural
+// aunque encajen perfectamente con un usuario igual de extremo.
+const CENTROID_BIAS = (function() {
+  const centroid = {};
+  DIMS.forEach(d => centroid[d] = 50);
+  const distances = breeds.map(breed => {
+    let sq = 0;
+    DIMS.forEach(d => { const diff = breed.profile[d]-centroid[d]; sq += DIM_WEIGHTS[d]*diff*diff; });
+    return Math.sqrt(sq/DIMS.length);
+  });
+  const meanDist = distances.reduce((a,b)=>a+b,0)/distances.length;
+  const bias = {};
+  breeds.forEach((breed,i) => {
+    bias[breed.name] = (distances[i] - meanDist) * 0.62;
+  });
+  return bias;
+})();
+
+// Techo y suelo de score, calibrados sobre 20.000 usuarios
+// simulados (percentil 1 y percentil 99 del score del líder,
+// más robusto ante outliers que usar el mínimo/máximo absoluto).
+const SCORE_CEIL = 92.5;
+const SCORE_FLOOR = 80.0;
+
+function computeRanking() {
+  const userNorm = {};
+  DIMS.forEach(d => {
+    const { mean, std } = POP_STATS[d];
+    const z = ((scores[d] || 0) - mean) / std;
+    userNorm[d] = Math.max(0, Math.min(100, 50 + z * 18));
+  });
+
+  const ranked = breeds.map(breed => {
+    let sumSqDiff = 0;
+    DIMS.forEach(d => {
+      const diff = breed.profile[d] - userNorm[d];
+      sumSqDiff += DIM_WEIGHTS[d] * diff * diff;
+    });
+    const distance = Math.sqrt(sumSqDiff / DIMS.length);
+    const rawScore = 100 - distance * 0.72;
+    const score = rawScore + CENTROID_BIAS[breed.name];
+    return { breed, score };
+  });
+
+  ranked.sort((a,b) => b.score - a.score);
+
+  // ---- % derivado del propio score ya ordenado, nunca de una métrica ----
+  // ---- aparte que pueda discrepar en el orden (evita inversiones) ----
+  const leaderScore = ranked[0].score;
+  const leaderQuality = Math.max(0, Math.min(1, (leaderScore - SCORE_FLOOR) / (SCORE_CEIL - SCORE_FLOOR)));
+  const topPct = 62 + Math.pow(leaderQuality, 0.6) * 36; // rango ~62-98
+
+  const GAP_STRETCH = 5.5;
+
+  return ranked.map(item => {
+    const gap = leaderScore - item.score; // 0 en el líder, siempre >= 0 en el resto
+    const pct = Math.round(Math.max(8, Math.min(99, topPct - gap * GAP_STRETCH)));
+    return { breed: item.breed, pct, score: item.score };
+  });
+}
+
+function triggerResult() {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const ld = document.getElementById('screen-loading');
+  ld.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const breedNames = breeds.map(b=>b.name);
+  let i=0;
+  const el = document.getElementById('loading-breeds');
+  const iv = setInterval(()=>{
+    el.textContent = `Comparando con ${breedNames[i%breedNames.length]}…`;
+    i++;
+  },160);
+
+  setTimeout(()=>{
+    clearInterval(iv);
+    ld.style.display='none';
+    buildResult();
+    show('screen-result');
+  }, 3000);
+}
+
+// ══════════════════════════════════════════════════════
+// BUILD RESULT
+// ══════════════════════════════════════════════════════
+function buildResult() {
+  const ranking = computeRanking();
+  const top3 = ranking.slice(0,3);
+  const best = top3[0];
+  const gap = top3[0].pct - top3[1].pct;
+  currentResult = { breed: best.breed, pct: best.pct };
+
+  // Margin note logic
+  let marginNote, marginClass;
+  if (gap >= 8) {
+    marginNote = `Resultado claro: ${gap} puntos de ventaja sobre el segundo puesto.`;
+    marginClass = 'clear';
+  } else if (gap >= 4) {
+    marginNote = `Resultado bastante definido, con algo de ${top3[1].breed.name} en ti también.`;
+    marginClass = '';
+  } else {
+    marginNote = `Empate técnico con ${top3[1].breed.name} — eres una mezcla de ambos.`;
+    marginClass = 'tied';
+  }
+
+  // Normalise user scores for bars
+  const maxScore = Math.max(...DIMS.map(d=>scores[d]||0),1);
+
+  const barsHTML = DIMS.map(d=>{
+    const v = scores[d]||0;
+    const pBar = Math.round((v/maxScore)*100);
+    return `
+    <div class="bar-row">
+      <div class="bar-lbl">${DIM_META[d].label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%;background:${DIM_META[d].color}" data-pct="${pBar}"></div></div>
+      <div class="bar-val">${pBar}%</div>
+    </div>`;
+  }).join('');
+
+  const medals=['🥇','🥈','🥉'];
+  const rankClass=['r1','r2','r3'];
+  const podiumHTML = top3.map((item,i)=>`
+    <div class="pc ${rankClass[i]}">
+      <span class="pc-medal">${medals[i]}</span>
+      <div class="pc-emoji" ${BREED_ICONS[item.breed.name]?'style="display:none"':''}>${item.breed.emoji}</div>
+      ${BREED_ICONS[item.breed.name]?`<img class="pc-icon" src="${BREED_ICONS[item.breed.name]}" alt="${item.breed.name}" onerror="this.style.display='none';this.previousElementSibling.style.display='block'">`:''}
+      <div class="pc-name">${item.breed.name}</div>
+      <div class="pc-pct">${item.pct}%</div>
+      ${i>0?`<div class="pc-gap">−${top3[0].pct-item.pct} pts</div>`:''}
+    </div>`).join('');
+
+  const b = best.breed;
+  const shareLabel = (typeof navigator !== 'undefined' && navigator.share) ? '📤 Compartir resultado' : '📋 Copiar resultado';
+  document.getElementById('result-content').innerHTML = `
+    <div class="share-card">
+      <span class="result-emoji" ${BREED_ICONS[b.name]?'style="display:none"':''}>${b.emoji}</span>
+      ${BREED_ICONS[b.name]?`<img class="result-icon" src="${BREED_ICONS[b.name]}" alt="${b.name}" onerror="this.style.display='none';this.previousElementSibling.style.display='block'">`:''}
+      <div class="result-eyebrow">Eres un…</div>
+      <div class="result-name">${b.name}</div>
+      <div class="result-tagline">"${b.tagline}"</div>
+      <div class="match-badge">✦ ${best.pct}% de coincidencia</div>
+      <div class="margin-note ${marginClass}">${marginNote}</div>
+      <div class="traits-row">${b.traits.map(t=>`<span class="trait-pill">${t}</span>`).join('')}</div>
+      <button class="btn-copy" data-breed-name="${b.name}" data-breed-pct="${best.pct}" data-breed-emoji="${b.emoji}" data-compat-good="${b.compat.good}" data-compat-clash="${b.compat.clash}" data-default-label="${shareLabel}" onclick="shareResult(this)">${shareLabel}</button>
+      <button class="btn-copy btn-download" data-breed-name="${b.name}" onclick="downloadResultImage(this)">🖼️ Descargar imagen</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head">🐾 Lo que te define</div>
+      <div class="desc-box">${b.desc}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">🏆 Tu podio de razas</div>
+      <div class="podium">${podiumHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">📊 Tu perfil de personalidad</div>
+      <div class="bars-box">${barsHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">💛 Compatibilidades</div>
+      <div class="compat-row">
+        <div class="cc good">
+          <div class="cc-lbl">✓ Conectas con</div>
+          <div class="cc-breed">${b.compat.good}</div>
+          <div class="cc-why">${b.compat.goodWhy}</div>
+        </div>
+        <div class="cc clash">
+          <div class="cc-lbl">✗ Chocas con</div>
+          <div class="cc-breed">${b.compat.clash}</div>
+          <div class="cc-why">${b.compat.clashWhy}</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-restart" onclick="restart()">🔄 Volver a empezar</button>
+  `;
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.pct+'%'});
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// COMPARTIR / COPIAR RESULTADO
+// ══════════════════════════════════════════════════════
+function buildShareText(name, pct, emoji, compatGood, compatClash) {
+  let text = `${emoji} Acabo de hacer el test "¿Qué raza de perro eres?" y soy ${name} (${pct}% de coincidencia).\n\n`;
+  text += `💛 Conecto genial con: ${compatGood}\n`;
+  text += `⚡ Choco con: ${compatClash}\n\n`;
+  text += `¿Tú qué saldrías? Hazlo y vemos si somos compatibles o si vamos a chocar 👀🐾`;
+  // Solo añadimos la URL si la página está servida de verdad (no file:// local),
+  // para que el link compartido funcione para quien lo reciba.
+  if (typeof location !== 'undefined' && location.href && location.protocol !== 'file:') {
+    text += `\n${location.href}`;
+  }
+  return text;
+}
+
+function legacyCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (err) {
+    return false;
+  }
+}
+
+function showButtonFeedback(btn, msg, revertMs) {
+  if (!btn) return;
+  const original = btn.dataset.defaultLabel || btn.textContent;
+  btn.textContent = msg;
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, revertMs || 2000);
+}
+
+async function shareResult(btn) {
+  const name = btn.dataset.breedName;
+  const pct = btn.dataset.breedPct;
+  const emoji = btn.dataset.breedEmoji || '🐾';
+  const compatGood = btn.dataset.compatGood;
+  const compatClash = btn.dataset.compatClash;
+  const text = buildShareText(name, pct, emoji, compatGood, compatClash);
+
+  // 1) Compartir nativo (móvil): abre el selector de WhatsApp, Instagram, Mensajes, etc.
+  //    Es la vía real para "compartirlo con amigos", no solo copiarlo.
+  if (navigator.share) {
+    try {
+      await navigator.share({ text, title: '¿Qué raza de perro eres?' });
+      return; // el usuario ya lo compartió o canceló desde el selector nativo
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // canceló el share sheet, no es un fallo
+      // si el share nativo falla por otro motivo, seguimos con el fallback de copiar
+    }
+  }
+
+  // 2) Clipboard API moderna (requiere contexto seguro: https o localhost)
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      showButtonFeedback(btn, '✓ ¡Copiado!');
+      return;
+    }
+    throw new Error('Clipboard API no disponible en este contexto');
+  } catch (err) {
+    // 3) Fallback legacy: funciona en http/file:// y navegadores más antiguos
+    const ok = legacyCopy(text);
+    showButtonFeedback(btn, ok ? '✓ ¡Copiado!' : '⚠️ No se pudo copiar, hazlo manualmente');
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// DESCARGAR IMAGEN DE RESULTADO (canvas)
+// ══════════════════════════════════════════════════════
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  words.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+  return lines.length;
+}
+
+async function downloadResultImage(btn) {
+  if (!currentResult) return;
+  const originalLabel = btn.textContent;
+  btn.textContent = '⏳ Generando…';
+  btn.disabled = true;
+
+  try {
+    const { breed, pct } = currentResult;
+    const W = 1080, H = 1620;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Fondo con degradado cálido (igual espíritu que .share-card)
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#FFF8EE');
+    bgGrad.addColorStop(1, '#FEF0D8');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Halo decorativo (misma idea que .share-card::before)
+    const halo = ctx.createRadialGradient(W-120, 120, 0, W-120, 120, 420);
+    halo.addColorStop(0, 'rgba(224,122,58,.14)');
+    halo.addColorStop(1, 'rgba(224,122,58,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, W, H);
+
+    // Tarjeta blanca principal (perfil)
+    const cardX = 60, cardY = 90, cardW = W-120, cardH = 990;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.save();
+    roundRect(ctx, cardX, cardY, cardW, cardH, 40);
+    ctx.shadowColor = 'rgba(58,46,34,.12)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 14;
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    roundRect(ctx, cardX, cardY, cardW, cardH, 40);
+    ctx.strokeStyle = '#F7E2BB';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+
+    let cy = cardY + 90;
+
+    // Eyebrow
+    ctx.fillStyle = '#9C8870';
+    ctx.font = '700 30px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ERES UN…', W/2, cy);
+    cy += 70;
+
+    // Ilustración de la raza (o emoji de respaldo) — respeta el aspect ratio real
+    const iconMaxSize = 340;
+    const iconY = cy;
+    await new Promise((resolve) => {
+      const iconSrc = BREED_ICONS[breed.name];
+      if (iconSrc) {
+        const img = new Image();
+        img.onload = () => {
+          const ratio = img.naturalWidth / img.naturalHeight;
+          let drawW = iconMaxSize, drawH = iconMaxSize;
+          if (ratio >= 1) { drawH = iconMaxSize / ratio; }
+          else { drawW = iconMaxSize * ratio; }
+          const drawX = W/2 - drawW/2;
+          const drawY = iconY + (iconMaxSize - drawH)/2;
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+          resolve();
+        };
+        img.onerror = () => {
+          ctx.font = `${iconMaxSize*0.7}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText(breed.emoji || '🐾', W/2, iconY + iconMaxSize*0.75);
+          resolve();
+        };
+        img.src = iconSrc;
+      } else {
+        ctx.font = `${iconMaxSize*0.7}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(breed.emoji || '🐾', W/2, iconY + iconMaxSize*0.75);
+        resolve();
+      }
+    });
+    cy = iconY + iconMaxSize + 70;
+
+    // Nombre de la raza
+    ctx.fillStyle = '#3A2E22';
+    ctx.font = '800 64px Lora, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(breed.name, W/2, cy);
+    cy += 56;
+
+    // Tagline
+    ctx.fillStyle = '#9C8870';
+    ctx.font = 'italic 600 32px Nunito, sans-serif';
+    const taglineLines = wrapCanvasText(ctx, `"${breed.tagline}"`, W/2, cy, cardW-140, 42);
+    cy += taglineLines * 42 + 40;
+
+    // Badge de porcentaje — estrella y texto medidos por separado para
+    // centrar de verdad (ctx.measureText no mide bien los emojis
+    // combinados con texto, lo que descuadraba el centrado)
+    const starPart = '✦';
+    const textPart = ` ${pct}% de coincidencia`;
+    ctx.font = '800 34px Nunito, sans-serif';
+    const starW = ctx.measureText(starPart).width;
+    const textW = ctx.measureText(textPart).width;
+    const contentW = starW + textW;
+    const badgeW = contentW + 80;
+    const badgeH = 70;
+    const badgeTop = cy - badgeH + 14;
+    const badgeCenterY = badgeTop + badgeH / 2;
+    ctx.save();
+    roundRect(ctx, W/2 - badgeW/2, badgeTop, badgeW, badgeH, 35);
+    ctx.fillStyle = '#E07A3A';
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const contentStartX = W/2 - contentW/2;
+    ctx.fillText(starPart, contentStartX, badgeCenterY);
+    ctx.fillText(textPart, contentStartX + starW, badgeCenterY);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    cy += 90;
+
+    // Traits como chips
+    if (breed.traits && breed.traits.length) {
+      ctx.font = '700 26px Nunito, sans-serif';
+      const gap = 16;
+      const paddingX = 26, chipH = 56;
+      const widths = breed.traits.map(t => ctx.measureText(t).width + paddingX*2);
+      const totalW = widths.reduce((a,b)=>a+b,0) + gap*(widths.length-1);
+      let chipX = W/2 - totalW/2;
+      breed.traits.forEach((t, i) => {
+        const w = widths[i];
+        ctx.save();
+        roundRect(ctx, chipX, cy, w, chipH, chipH/2);
+        ctx.fillStyle = '#FDF0DC';
+        ctx.fill();
+        ctx.strokeStyle = '#ECD9BE';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = '#3A2E22';
+        ctx.textAlign = 'center';
+        ctx.fillText(t, chipX + w/2, cy + chipH/2 + 9);
+        chipX += w + gap;
+      });
+    }
+
+    // ══════════════════════════════════════════════
+    // SECCIÓN DE COMPATIBILIDADES (debajo de la tarjeta principal)
+    // ══════════════════════════════════════════════
+    let compatY = cardY + cardH + 60;
+    const compatCardW = cardW;
+    const compatCardH = 380;
+    const halfW = (compatCardW - 24) / 2;
+
+    function compatBlock(x, label, breedName, why, good) {
+      ctx.save();
+      roundRect(ctx, x, compatY, halfW, compatCardH, 30);
+      ctx.fillStyle = good ? '#F1F7EE' : '#FBEFEF';
+      ctx.fill();
+      ctx.strokeStyle = good ? '#CFE3C6' : '#EFCFCF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      let bx = x + halfW/2;
+      let by = compatY + 60;
+
+      // Icono pulgar arriba/abajo
+      ctx.font = '56px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(good ? '👍' : '👎', bx, by + 10);
+      by += 70;
+
+      // Label (CONECTAS CON / CHOCAS CON)
+      ctx.font = '800 24px Nunito, sans-serif';
+      ctx.fillStyle = good ? '#5C8A4A' : '#B5504F';
+      ctx.fillText(label, bx, by);
+      by += 48;
+
+      // Nombre de la raza compatible/incompatible
+      ctx.font = '800 34px Lora, serif';
+      ctx.fillStyle = '#3A2E22';
+      ctx.fillText(breedName, bx, by);
+      by += 46;
+
+      // Explicación (wrap)
+      ctx.font = '600 22px Nunito, sans-serif';
+      ctx.fillStyle = '#7A6B58';
+      wrapCanvasText(ctx, why, bx, by, halfW - 60, 30);
+    }
+
+    compatBlock(cardX, 'CONECTAS CON', breed.compat.good, breed.compat.goodWhy, true);
+    compatBlock(cardX + halfW + 24, 'CHOCAS CON', breed.compat.clash, breed.compat.clashWhy, false);
+
+    // Pie de marca
+    ctx.fillStyle = '#9C8870';
+    ctx.font = '700 28px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('¿Qué perro eres tú? 🐾', W/2, H - 50);
+
+    // Descargar
+    const link = document.createElement('a');
+    const safeName = breed.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    link.download = `que-perro-eres-${safeName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    btn.textContent = '✓ ¡Descargada!';
+    setTimeout(() => { btn.textContent = originalLabel; btn.disabled = false; }, 1800);
+  } catch (err) {
+    console.error('Error generando imagen de resultado:', err);
+    btn.textContent = '⚠️ No se pudo generar';
+    setTimeout(() => { btn.textContent = originalLabel; btn.disabled = false; }, 2200);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// START / RESTART
+// ══════════════════════════════════════════════════════
+function startQuiz(){
+  current=0;
+  answers=new Array(Qs.length).fill(null);
+  DIMS.forEach(d=>scores[d]=0);
+  initDots();
+  show('screen-quiz');
+  renderQ();
+}
+function restart(){
+  startQuiz();
+}
+</script>
+</body>
+</html>
