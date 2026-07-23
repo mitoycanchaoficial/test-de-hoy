@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué personaje Disney eres? ✨</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,700;1,600&display=swap');
+
+:root {
+  --bg:      #FEF9F2;
+  --paper:   #FFFFFF;
+  --warm1:   #FDF0DC;
+  --warm2:   #F7E2BB;
+  --border:  #ECD9BE;
+  --text:    #3A2E22;
+  --muted:   #9C8870;
+  --accent:  #E07A3A;
+  --sky:     #5B9EC9;
+  --green:   #6BAA75;
+  --rose:    #D4607A;
+  --r1:      #F5A623;
+  --r2:      #A8B8C8;
+  --r3:      #C49A6C;
+  --radius:  18px;
+  --shadow:  0 4px 24px rgba(58,46,34,.09);
+  --shadow-s:0 2px 10px rgba(58,46,34,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Nunito',system-ui,sans-serif;color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:1.5rem 1rem 5rem}
+.wrap{width:100%;max-width:640px}
+
+.screen{display:none}
+.screen.active{display:block;animation:popIn .4s cubic-bezier(.34,1.4,.64,1) both}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.intro-art{text-align:center;font-size:5rem;line-height:1;margin-bottom:.6rem}
+.intro-title{font-family:'Lora',serif;font-size:clamp(2.4rem,8vw,3.5rem);font-weight:700;line-height:1.1;text-align:center;margin-bottom:.35rem}
+.intro-title em{font-style:italic;color:var(--accent)}
+.intro-sub{text-align:center;color:var(--muted);font-size:.95rem;font-weight:700;margin-bottom:2rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:2rem}
+.chip{background:var(--warm1);border:1.5px solid var(--border);border-radius:99px;padding:.4rem 1rem;font-size:.83rem;font-weight:700;color:var(--muted)}
+.btn-start{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:1.1rem;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(224,122,58,.35);transition:background .15s,transform .1s}
+.btn-start:hover{background:#c86828;transform:translateY(-2px)}
+
+.prog-wrap{margin-bottom:1.2rem}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem}
+.prog-label{font-size:.8rem;font-weight:700;color:var(--muted)}
+.prog-frac{font-size:.8rem;font-weight:800;color:var(--accent)}
+.prog-track{height:8px;background:var(--warm2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f0a060);border-radius:99px;transition:width .5s ease}
+.prog-dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:.5rem}
+.prog-star{font-size:.68rem;line-height:1;opacity:.25;transition:opacity .3s,transform .3s;display:inline-block;transform:scale(.9)}
+.prog-star.done{opacity:1;transform:scale(1)}
+.prog-star.cur{opacity:.6;transform:scale(1.1)}
+
+.q-card{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.6rem 1.5rem 1.3rem;box-shadow:var(--shadow);margin-bottom:.9rem}
+.q-tag-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.q-tag{background:var(--warm1);border:1px solid var(--border);border-radius:99px;padding:.22rem .8rem;font-size:.7rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.q-text{font-family:'Lora',serif;font-size:1.18rem;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:1.1rem}
+.opts{display:grid;gap:.55rem}
+.opt{background:var(--bg);border:2px solid var(--border);border-radius:13px;padding:.8rem 1rem;text-align:left;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);cursor:pointer;transition:border-color .14s,background .14s,transform .1s;display:flex;align-items:center;gap:.7rem;line-height:1.4}
+.opt:hover{border-color:var(--accent);background:var(--warm1);transform:translateX(3px)}
+.opt.sp{border-color:var(--accent);background:var(--accent);color:#fff}
+.opt-letter{flex-shrink:0;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--border);color:var(--muted);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;transition:background .14s,color .14s}
+.opt.sp .opt-letter{background:rgba(255,255,255,.3);color:#fff}
+
+.nav-row{display:flex;gap:.6rem}
+.btn-nav{flex:1;background:transparent;border:2px solid var(--border);border-radius:13px;padding:.75rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .14s,color .14s}
+.btn-nav:hover:not(:disabled){border-color:var(--muted);color:var(--text)}
+.btn-nav.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 3px 12px rgba(224,122,58,.3)}
+.btn-nav.primary:hover:not(:disabled){background:#c86828}
+.btn-nav:disabled{opacity:.3;cursor:default}
+
+#screen-loading{display:none;text-align:center;padding:5rem 1rem}
+.loading-dog{font-size:4rem}
+.loading-title{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;margin:1rem 0 .35rem}
+.loading-sub{color:var(--muted);font-size:.9rem;font-weight:600;margin-bottom:1.5rem}
+.loading-breeds{color:var(--accent);font-size:.8rem;font-weight:700;margin-bottom:1.2rem;min-height:1.2em;transition:opacity .3s}
+.dots{display:flex;gap:.4rem;justify-content:center}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:bounce .8s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.15s;background:var(--sky)}
+.dot:nth-child(3){animation-delay:.3s;background:var(--green)}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-10px);opacity:1}}
+
+.share-card{background:linear-gradient(145deg,#FFF8EE,#FEF0D8);border:2px solid var(--warm2);border-radius:22px;padding:2rem 1.5rem 1.6rem;text-align:center;box-shadow:var(--shadow);margin-bottom:1.2rem;position:relative;overflow:hidden}
+.share-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(224,122,58,.12),transparent 70%);pointer-events:none}
+.result-emoji{font-size:5rem;line-height:1;display:block;margin-bottom:.5rem}
+.result-icon{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto .5rem}
+.result-eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:var(--muted);margin-bottom:.25rem}
+.result-name{font-family:'Lora',serif;font-size:2.4rem;font-weight:700;line-height:1.1;margin-bottom:.2rem}
+.result-tagline{font-family:'Lora',serif;font-style:italic;font-size:1rem;color:var(--accent);margin-bottom:.9rem}
+.match-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--accent);color:#fff;border-radius:99px;padding:.38rem 1.1rem;font-size:.88rem;font-weight:800;margin-bottom:.7rem;box-shadow:0 3px 10px rgba(224,122,58,.3)}
+.margin-note{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:1rem;font-style:italic}
+.margin-note.clear{color:var(--green)}
+.margin-note.tied{color:var(--sky)}
+.traits-row{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.5rem}
+.trait-pill{background:var(--warm1);border:1.5px solid var(--border);border-radius:99px;padding:.25rem .85rem;font-size:.8rem;font-weight:700;color:var(--muted)}
+.btn-copy{display:block;width:100%;margin-top:1rem;background:transparent;border:2px solid var(--border);border-radius:12px;padding:.65rem;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .14s,color .14s}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-download{margin-top:.6rem}
+
+.section{margin-bottom:1.2rem}
+.section-head{font-family:'Lora',serif;font-size:1.05rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.45rem}
+.desc-box{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem;font-size:.94rem;line-height:1.75;box-shadow:var(--shadow-s)}
+
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+.pc{background:var(--paper);border:1.5px solid var(--border);border-radius:14px;padding:.9rem .6rem;text-align:center;box-shadow:var(--shadow-s);position:relative}
+.pc.r1{border-color:var(--r1);background:linear-gradient(160deg,#FFF8EE,#FFF3D8)}
+.pc.r2{border-color:var(--r2)}
+.pc.r3{border-color:var(--r3)}
+.pc-medal{font-size:1.2rem;display:block;margin-bottom:.15rem}
+.pc-emoji{font-size:1.8rem;line-height:1;margin-bottom:.15rem}
+.pc-icon{width:56px;height:56px;object-fit:contain;display:block;margin:0 auto .15rem}
+.r1 .pc-icon{width:76px;height:76px}
+.pc-name{font-size:.75rem;font-weight:800;margin-bottom:.15rem}
+.pc-pct{font-size:.82rem;font-weight:800;color:var(--muted)}
+.pc.r1 .pc-pct{color:var(--r1)}
+.pc-gap{font-size:.68rem;color:var(--muted);font-weight:600;margin-top:.1rem}
+
+.bars-box{background:var(--paper);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow-s)}
+.bar-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:.76rem;font-weight:700;width:130px;flex-shrink:0;color:var(--muted)}
+.bar-track{flex:1;height:8px;background:var(--warm2);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.bar-val{font-size:.7rem;font-weight:700;width:30px;text-align:right;color:var(--muted)}
+
+.compat-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.cc{border-radius:14px;padding:1rem;border:1.5px solid}
+.cc.good{background:rgba(107,170,117,.1);border-color:rgba(107,170,117,.4)}
+.cc.clash{background:rgba(212,96,122,.1);border-color:rgba(212,96,122,.35)}
+.cc-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem}
+.cc.good .cc-lbl{color:var(--green)}
+.cc.clash .cc-lbl{color:var(--rose)}
+.cc-breed{font-size:.9rem;font-weight:800;margin-bottom:.25rem}
+.cc-why{font-size:.78rem;color:var(--muted);line-height:1.45;font-weight:600}
+
+.btn-restart{display:block;width:100%;background:transparent;border:2px solid var(--border);border-radius:var(--radius);padding:1rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--muted);cursor:pointer;transition:all .15s;margin-top:.5rem}
+.btn-restart:hover{border-color:var(--accent);color:var(--accent)}
+
+@media(max-width:420px){.compat-row{grid-template-columns:1fr}.podium{gap:.4rem}.pc{padding:.7rem .4rem}.bar-lbl{width:105px;font-size:.7rem}}
+</style>
+</head>
+<body><div class="wrap">
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-art">✨</div>
+  <h1 class="intro-title">¿Qué personaje<br><em>Disney eres?</em></h1>
+  <div class="chips">
+    <span class="chip">🎬 40 preguntas</span>
+    <span class="chip">👑 40 personajes</span>
+    <span class="chip">🏆 Podio preciso</span>
+    <span class="chip">📊 9 dimensiones</span>
+    <span class="chip">💛 Compatibilidades</span>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">¡Empezar el test! ✨</button>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="prog-wrap">
+    <div class="prog-top">
+      <span class="prog-label" id="prog-label">Pregunta 1 de 40</span>
+      <span class="prog-frac" id="prog-frac">0 / 40</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-dots" id="prog-dots"></div>
+  </div>
+  <div class="q-card" id="q-card">
+    <div class="q-tag-row">
+      <span class="q-tag" id="q-tag">Rutina</span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-nav" id="btn-prev" onclick="goBack()">← Anterior</button>
+    <button class="btn-nav primary" id="btn-next" onclick="goNext()" disabled>Siguiente →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading">
+  <div class="loading-dog">🎬</div>
+  <div class="loading-title">Comparando con 40 personajes…</div>
+  <div class="loading-sub">Calculando tu perfil de personalidad</div>
+  <div class="loading-breeds" id="loading-breeds">Analizando…</div>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div id="result-content"></div>
+</div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// 9 DIMENSIONES
+// ══════════════════════════════════════════════════════
+const DIMS = ['ambicion','sociabilidad','lealtad','independencia','idealismo','espontaneidad','sarcasmo','orgullo','sensibilidad'];
+const DIM_META = {
+  ambicion:       {label:'🎯 Ambición',            color:'#E07A3A'},
+  sociabilidad:   {label:'🤝 Sociabilidad',        color:'#5B9EC9'},
+  lealtad:        {label:'💛 Lealtad',             color:'#D4607A'},
+  independencia:  {label:'🦅 Independencia',       color:'#8B6DB5'},
+  idealismo:      {label:'✨ Idealismo',           color:'#6BAA75'},
+  espontaneidad:  {label:'⚡ Espontaneidad',       color:'#F5A623'},
+  sarcasmo:       {label:'😏 Sarcasmo',            color:'#C49A6C'},
+  orgullo:        {label:'👑 Orgullo',             color:'#A8B8C8'},
+  sensibilidad:   {label:'💧 Sensibilidad',        color:'#9C8870'},
+};
+
+// ══════════════════════════════════════════════════════
+// 40 PREGUNTAS
+// ══════════════════════════════════════════════════════
+const Qs = [
+{tag:'Rutina', text:'¿Cómo prefieres empezar el día?',
+ opts:[
+  {t:'Con un plan claro de lo que quiero lograr', s:{ambicion:3,independencia:1}},
+  {t:'Sin horarios fijos, según me apetezca', s:{espontaneidad:3,independencia:1}},
+  {t:'Con calma, disfrutando el momento', s:{idealismo:2,sensibilidad:2}},
+  {t:'Rodeado/a de gente desde temprano', s:{sociabilidad:3}},
+]},
+{tag:'Rutina', text:'Un domingo libre sin ninguna obligación, ¿qué haces?',
+ opts:[
+  {t:'Aprovecho para adelantar algo de mis metas', s:{ambicion:2,orgullo:1}},
+  {t:'Quedo con la gente que más quiero', s:{lealtad:2,sociabilidad:2}},
+  {t:'Salgo a hacer algo que no había planeado', s:{espontaneidad:3}},
+  {t:'Me quedo solo/a, recargando energía', s:{independencia:3}},
+]},
+{tag:'Social', text:'Llegas a una fiesta donde no conoces a nadie.',
+ opts:[
+  {t:'Me presento a todo el mundo enseguida', s:{sociabilidad:3,espontaneidad:1}},
+  {t:'Busco un rincón tranquilo y observo antes de acercarme', s:{independencia:2,sensibilidad:1}},
+  {t:'Me quedo cerca de quien ya conozco', s:{lealtad:2}},
+  {t:'Busco a la persona más interesante de la sala', s:{ambicion:1,orgullo:2}},
+]},
+{tag:'Social', text:'Estás en una cena familiar con tensión en el ambiente.',
+ opts:[
+  {t:'Intento que todos se lleven bien, aunque me cueste', s:{idealismo:2,sociabilidad:1}},
+  {t:'Rompo el hielo con una broma', s:{sarcasmo:3}},
+  {t:'Me mantengo al margen, no es mi guerra', s:{independencia:2}},
+  {t:'Se me nota que la tensión me afecta', s:{sensibilidad:3}},
+]},
+{tag:'Metas', text:'¿Qué harías si tu sueño más grande pareciera imposible?',
+ opts:[
+  {t:'Trabajar el doble hasta lograrlo', s:{ambicion:4,orgullo:1}},
+  {t:'Buscar ayuda de la gente en la que confío', s:{lealtad:2,sociabilidad:1}},
+  {t:'Seguir soñando con ello aunque tarde años', s:{idealismo:3}},
+  {t:'Cambiar de sueño si este no funciona', s:{espontaneidad:2,independencia:1}},
+]},
+{tag:'Metas', text:'¿Cómo defines el éxito para ti?',
+ opts:[
+  {t:'Llegar más lejos que nadie en lo que me propongo', s:{ambicion:4}},
+  {t:'Sentirme en paz con quien soy', s:{idealismo:2,independencia:1,sensibilidad:1}},
+  {t:'Tener a mi lado a quien de verdad importa', s:{lealtad:2,sociabilidad:2}},
+  {t:'Vivir tantas experiencias distintas como pueda', s:{espontaneidad:3}},
+]},
+{tag:'Conflicto', text:'Alguien te trata injustamente delante de otras personas.',
+ opts:[
+  {t:'Se lo digo claro ahí mismo, sin rodeos', s:{orgullo:2,independencia:1,ambicion:1}},
+  {t:'Respondo con una ironía que deja claro lo que pienso', s:{sarcasmo:3}},
+  {t:'Lo dejo pasar por no montar un problema', s:{sensibilidad:2,idealismo:1}},
+  {t:'Se lo cuento después a alguien de confianza, en privado', s:{lealtad:2}},
+]},
+{tag:'Conflicto', text:'Dos personas cercanas a ti discuten y te piden que tomes partido.',
+ opts:[
+  {t:'Me pongo del lado de quien creo que tiene razón, aunque duela', s:{idealismo:2,orgullo:1}},
+  {t:'Intento mediar para que no se rompa nada', s:{sociabilidad:2,sensibilidad:1}},
+  {t:'Me niego a elegir, no es mi papel', s:{independencia:3}},
+  {t:'Apoyo a quien más quiero, sin pensarlo', s:{lealtad:3}},
+]},
+{tag:'Lealtad', text:'Tu mejor amigo/a comete un error grave.',
+ opts:[
+  {t:'Le apoyo pase lo que pase', s:{lealtad:3,sensibilidad:1}},
+  {t:'Le digo la verdad aunque le duela', s:{orgullo:1,ambicion:1,independencia:1}},
+  {t:'Intento quitarle hierro con humor', s:{sarcasmo:2}},
+  {t:'Confío en que aprenderá solo/a', s:{independencia:2,idealismo:1}},
+]},
+{tag:'Lealtad', text:'Descubres que alguien habló mal de ti a tus espaldas.',
+ opts:[
+  {t:'Se lo digo directamente, cara a cara', s:{orgullo:2,independencia:1}},
+  {t:'Me duele más de lo que esperaba', s:{sensibilidad:3}},
+  {t:'Sigo tratándole igual, no merece más energía', s:{idealismo:2,independencia:1}},
+  {t:'Se lo cuento a mi gente de confianza para desahogarme', s:{lealtad:2,sociabilidad:1}},
+]},
+{tag:'Miedos', text:'¿Qué es lo que más te cuesta admitir en voz alta?',
+ opts:[
+  {t:'Que necesito ayuda de otros', s:{orgullo:3,independencia:1}},
+  {t:'Que algo me ha hecho daño de verdad', s:{sensibilidad:3}},
+  {t:'Que me equivoqué en algo importante', s:{orgullo:2,ambicion:1}},
+  {t:'Nada, lo digo todo tal cual', s:{espontaneidad:2,sociabilidad:1}},
+]},
+{tag:'Miedos', text:'¿Qué es lo que más temes perder?',
+ opts:[
+  {t:'El control sobre mi propia vida', s:{independencia:2,orgullo:2}},
+  {t:'A las personas que quiero', s:{lealtad:3}},
+  {t:'Mi reputación o el respeto de los demás', s:{orgullo:3,ambicion:1}},
+  {t:'Las ganas de soñar', s:{idealismo:3}},
+]},
+{tag:'Instinto', text:'Si fueras un elemento de la naturaleza, ¿cuál serías?',
+ opts:[
+  {t:'Fuego: intenso, imparable', s:{ambicion:2,espontaneidad:2}},
+  {t:'Agua: adaptable, profunda', s:{sensibilidad:2,idealismo:1}},
+  {t:'Viento: libre, imprevisible', s:{espontaneidad:3,independencia:1}},
+  {t:'Tierra: estable, siempre ahí', s:{lealtad:3}},
+]},
+{tag:'Instinto', text:'Descubres un secreto que podría cambiarlo todo para varias personas.',
+ opts:[
+  {t:'Lo uso a mi favor si me conviene', s:{ambicion:2,sarcasmo:1,orgullo:1}},
+  {t:'Se lo cuento solo a quien más confío', s:{lealtad:2,sensibilidad:1}},
+  {t:'Actúo según lo que creo correcto, cueste lo que cueste', s:{idealismo:3,orgullo:1}},
+  {t:'Lo guardo, no es asunto mío', s:{independencia:2}},
+]},
+{tag:'Trabajo', text:'¿Cómo prefieres trabajar en equipo?',
+ opts:[
+  {t:'Liderando, con un objetivo claro', s:{ambicion:3,orgullo:1}},
+  {t:'Con buen ambiente, entre risas', s:{sociabilidad:2,sarcasmo:1}},
+  {t:'Con una o dos personas de total confianza', s:{lealtad:3}},
+  {t:'Solo/a, a mi ritmo', s:{independencia:3}},
+]},
+{tag:'Trabajo', text:'Te ofrecen un ascenso que implica dejar atrás a tu equipo actual.',
+ opts:[
+  {t:'Lo acepto, mis metas van primero', s:{ambicion:3,orgullo:1}},
+  {t:'Lo rechazo, no abandono a los míos', s:{lealtad:3}},
+  {t:'Negocio una forma de quedarme cerca de ambas cosas', s:{idealismo:1,sociabilidad:2}},
+  {t:'Decido siguiendo mi instinto del momento', s:{espontaneidad:2,independencia:1}},
+]},
+{tag:'Humor', text:'¿Qué tipo de humor te define mejor?',
+ opts:[
+  {t:'Ácido, directo, sin filtros', s:{sarcasmo:3,orgullo:1}},
+  {t:'Absurdo y espontáneo', s:{sarcasmo:2,espontaneidad:2}},
+  {t:'Casi no lo uso, prefiero ser sincero/a', s:{sensibilidad:2}},
+  {t:'Lo uso para caer bien y crear ambiente', s:{sociabilidad:2,sarcasmo:1}},
+]},
+{tag:'Humor', text:'Estás en un momento muy tenso con mucha gente mirando.',
+ opts:[
+  {t:'Rompo el hielo con un comentario ingenioso', s:{sarcasmo:3}},
+  {t:'Mantengo la compostura, no es momento de bromas', s:{orgullo:2,independencia:1}},
+  {t:'Se me nota que estoy nervioso/a', s:{sensibilidad:3}},
+  {t:'Improviso algo que nadie espera', s:{espontaneidad:3}},
+]},
+{tag:'Decisiones', text:'Tienes que tomar una decisión importante muy rápido.',
+ opts:[
+  {t:'Confío en mi instinto y voy', s:{espontaneidad:3}},
+  {t:'Pido opinión a la gente que quiero', s:{sociabilidad:2,lealtad:1}},
+  {t:'Pienso en qué es lo correcto, no solo lo fácil', s:{idealismo:2}},
+  {t:'Decido y no miro atrás, salga como salga', s:{orgullo:2,ambicion:1}},
+]},
+{tag:'Decisiones', text:'Te dan a elegir entre lo seguro y lo emocionante pero incierto.',
+ opts:[
+  {t:'Elijo lo incierto, la seguridad aburre', s:{espontaneidad:3,independencia:1}},
+  {t:'Elijo lo seguro, prefiero no arriesgar lo que tengo', s:{idealismo:1,sensibilidad:2}},
+  {t:'Depende de si mi gente viene conmigo', s:{lealtad:2,sociabilidad:1}},
+  {t:'Elijo lo que más me acerque a mis metas', s:{ambicion:3}},
+]},
+{tag:'Relaciones', text:'¿Qué buscas más en una amistad?',
+ opts:[
+  {t:'Alguien que me haga reír sin parar', s:{sarcasmo:2,sociabilidad:1}},
+  {t:'Alguien en quien pueda confiar ciegamente', s:{lealtad:3}},
+  {t:'Alguien que me entienda sin explicaciones', s:{sensibilidad:3}},
+  {t:'Alguien que me rete a mejorar', s:{ambicion:2,orgullo:1}},
+]},
+{tag:'Relaciones', text:'Alguien empieza a depender demasiado de ti emocionalmente.',
+ opts:[
+  {t:'Me hace sentir importante, me gusta cuidar de otros', s:{lealtad:2,sensibilidad:1}},
+  {t:'Necesito poner límites, valoro mi espacio', s:{independencia:3,orgullo:1}},
+  {t:'Intento aligerarlo con humor', s:{sarcasmo:2}},
+  {t:'Me esfuerzo por estar a la altura', s:{ambicion:2,lealtad:1}},
+]},
+{tag:'Autoimagen', text:'¿Qué dirían tus amigos de ti en una palabra?',
+ opts:[
+  {t:'Ambicioso/a', s:{ambicion:3}},
+  {t:'Divertidísimo/a', s:{sociabilidad:2,sarcasmo:2}},
+  {t:'Imprescindible', s:{lealtad:3}},
+  {t:'Libre', s:{independencia:3,espontaneidad:1}},
+]},
+{tag:'Autoimagen', text:'¿Con qué frecuencia se te nota lo que sientes por dentro?',
+ opts:[
+  {t:'Casi siempre, no sé disimular', s:{sensibilidad:3,espontaneidad:1}},
+  {t:'Solo con quien de verdad confío', s:{lealtad:2,sensibilidad:1}},
+  {t:'Casi nunca, prefiero guardármelo', s:{orgullo:2,independencia:1}},
+  {t:'Lo transformo en broma antes de que se note', s:{sarcasmo:3}},
+]},
+{tag:'Crisis', text:'Todo sale mal en un plan que llevabas semanas preparando.',
+ opts:[
+  {t:'Busco una solución inmediata, no me hundo', s:{ambicion:2,orgullo:1}},
+  {t:'Lo tomo con humor, ya se arreglará', s:{sarcasmo:2,espontaneidad:1}},
+  {t:'Me afecta bastante, necesito procesarlo', s:{sensibilidad:3}},
+  {t:'Improviso un plan B sobre la marcha', s:{espontaneidad:3}},
+]},
+{tag:'Crisis', text:'Alguien te traiciona de verdad, sin previo aviso.',
+ opts:[
+  {t:'Corto por lo sano, cuesta que vuelva a confiar en esa persona', s:{orgullo:3,independencia:1}},
+  {t:'Duele mucho, intento entender por qué pasó', s:{sensibilidad:3,idealismo:1}},
+  {t:'Busco la manera de que se dé cuenta de su error', s:{ambicion:1,sarcasmo:1,orgullo:1}},
+  {t:'Lo dejo pasar, no merece la pena el rencor', s:{idealismo:2,independencia:1}},
+]},
+{tag:'Sueños', text:'¿Cómo es tu mundo ideal?',
+ opts:[
+  {t:'Uno donde todos se ayudan sin esperar nada a cambio', s:{idealismo:3,lealtad:1}},
+  {t:'Uno donde cada uno hace lo que quiere sin dar explicaciones', s:{independencia:3}},
+  {t:'Uno donde el esfuerzo siempre tiene recompensa', s:{ambicion:3}},
+  {t:'Uno con más aventuras que rutina', s:{espontaneidad:2,sociabilidad:1}},
+]},
+{tag:'Sueños', text:'Si pudieras cambiar una sola cosa del mundo, ¿qué sería?',
+ opts:[
+  {t:'Que la gente confiara más los unos en los otros', s:{idealismo:2,lealtad:2}},
+  {t:'Que se premiara más el esfuerzo real', s:{ambicion:3}},
+  {t:'Que hubiera más libertad para ser uno mismo', s:{independencia:3}},
+  {t:'Que la gente se tomara la vida con más humor', s:{sarcasmo:2,espontaneidad:1}},
+]},
+{tag:'Orgullo', text:'Pierdes en algo que se te da muy bien.',
+ opts:[
+  {t:'Me cuesta aceptarlo', s:{orgullo:4}},
+  {t:'Lo acepto con deportividad', s:{idealismo:2,independencia:1}},
+  {t:'Le quito importancia con una broma', s:{sarcasmo:3}},
+  {t:'Me afecta más de lo que dejo ver', s:{sensibilidad:3,orgullo:1}},
+]},
+{tag:'Orgullo', text:'Te niegan algo que querías conseguir con muchas ganas.',
+ opts:[
+  {t:'Insisto hasta lograrlo de otra manera', s:{ambicion:3,orgullo:1}},
+  {t:'Me duele pero lo acepto con elegancia', s:{sensibilidad:2,idealismo:1}},
+  {t:'Le resto importancia, ya vendrá otra cosa', s:{espontaneidad:2,independencia:1}},
+  {t:'Me cuesta mucho soltarlo', s:{orgullo:3}},
+]},
+{tag:'Poder', text:'Si tuvieras un poder mágico durante un día, ¿cuál elegirías?',
+ opts:[
+  {t:'Controlar los elementos, sentirme imparable', s:{ambicion:2,orgullo:2}},
+  {t:'Leer mentes, para entender de verdad a los demás', s:{sensibilidad:2,sociabilidad:1}},
+  {t:'Teletransportarme, ir donde quiera', s:{independencia:2,espontaneidad:2}},
+  {t:'Convertir cualquier situación en algo divertido', s:{sarcasmo:2,sociabilidad:2}},
+]},
+{tag:'Poder', text:'Tienes poder absoluto sobre una situación injusta que te afecta a ti y a otros.',
+ opts:[
+  {t:'Lo uso para arreglar la injusticia, sin dudarlo', s:{idealismo:3}},
+  {t:'Lo uso para proteger a los míos primero', s:{lealtad:2,orgullo:1}},
+  {t:'Demuestro de lo que soy capaz', s:{ambicion:2,orgullo:2}},
+  {t:'Actúo sin plan, según lo que sienta en el momento', s:{espontaneidad:2,sensibilidad:1}},
+]},
+{tag:'Aventura', text:'Te ofrecen dejarlo todo por una aventura sin garantías.',
+ opts:[
+  {t:'Voy sin pensarlo dos veces', s:{espontaneidad:4}},
+  {t:'Solo si puedo llevar a la gente que quiero', s:{lealtad:2,sociabilidad:1}},
+  {t:'Lo pienso bien, necesito un plan antes', s:{independencia:2,ambicion:1}},
+  {t:'Prefiero quedarme donde ya tengo seguridad', s:{idealismo:1,sensibilidad:2}},
+]},
+{tag:'Aventura', text:'¿Qué tipo de viaje elegirías si pudieras elegir cualquiera?',
+ opts:[
+  {t:'Uno sin ruta fija, dejándome llevar', s:{espontaneidad:3,independencia:1}},
+  {t:'Uno para reencontrarme conmigo mismo/a', s:{sensibilidad:2,idealismo:1}},
+  {t:'Uno con gente que quiero, el destino da igual', s:{sociabilidad:2,lealtad:2}},
+  {t:'Uno con un objetivo claro que cumplir', s:{ambicion:3}},
+]},
+{tag:'Liderazgo', text:'En un grupo sin líder claro, ¿qué haces?',
+ opts:[
+  {t:'Tomo la iniciativa, alguien tiene que hacerlo', s:{ambicion:3,orgullo:1}},
+  {t:'Ayudo a que todos se pongan de acuerdo', s:{sociabilidad:2,idealismo:1}},
+  {t:'Sigo la corriente, no necesito mandar', s:{independencia:1,espontaneidad:1}},
+  {t:'Apoyo a quien decida, mi lealtad va con el grupo', s:{lealtad:3}},
+]},
+{tag:'Liderazgo', text:'Un plan cambia por completo a última hora sin que nadie te avise.',
+ opts:[
+  {t:'Me adapto al instante, incluso me gusta más así', s:{espontaneidad:3,independencia:1}},
+  {t:'Me frustra, prefiero que las cosas salgan como se pensaron', s:{orgullo:2,ambicion:1}},
+  {t:'Lo convierto en una anécdota divertida', s:{sarcasmo:2}},
+  {t:'Me preocupa cómo afecta a la gente que quiero', s:{sensibilidad:2,lealtad:1}},
+]},
+{tag:'Identidad final', text:'¿Qué es lo último que soltarías en una crisis?',
+ opts:[
+  {t:'Mi determinación por conseguir lo que quiero', s:{ambicion:3,orgullo:1}},
+  {t:'A las personas que me importan', s:{lealtad:3}},
+  {t:'Mi libertad de decidir por mí mismo/a', s:{independencia:3}},
+  {t:'La esperanza de que todo saldrá bien', s:{idealismo:3}},
+]},
+{tag:'Identidad final', text:'¿Cómo sueles cerrar una conversación difícil?',
+ opts:[
+  {t:'Con una solución concreta sobre la mesa', s:{ambicion:2,independencia:1}},
+  {t:'Con un gesto de cariño', s:{sensibilidad:2,lealtad:2}},
+  {t:'Con una broma que quite peso al momento', s:{sarcasmo:3}},
+  {t:'Dejando claro que no doy mi brazo a torcer', s:{orgullo:3}},
+]},
+{tag:'Identidad final', text:'De estas frases, ¿cuál sientes más tuya?',
+ opts:[
+  {t:'"Prefiero equivocarme siendo yo mismo/a que acertar siendo otro"', s:{independencia:2,orgullo:1,idealismo:1}},
+  {t:'"Nada importa tanto como la gente que quieres"', s:{lealtad:3}},
+  {t:'"Si no lo intentas, ya has perdido"', s:{ambicion:3}},
+  {t:'"La vida es más fácil si no te la tomas tan en serio"', s:{sarcasmo:2,espontaneidad:2}},
+]},
+{tag:'Identidad final', text:'Por último: ¿qué frase resume mejor cómo vives la vida?',
+ opts:[
+  {t:'"Voy a por todas, siempre"', s:{ambicion:3,orgullo:1}},
+  {t:'"Mi gente es mi prioridad"', s:{lealtad:3,sociabilidad:1}},
+  {t:'"Cada día trae una sorpresa distinta"', s:{espontaneidad:3,idealismo:1}},
+  {t:'"Hago las cosas a mi manera, sin pedir permiso"', s:{independencia:3,orgullo:1}},
+]},
+];
+
+// ══════════════════════════════════════════════════════
+// 40 PERSONAJES — perfiles en 9 dimensiones (0-100)
+// Calibrados con simulación de 20.000 usuarios (ver notas al final)
+// ══════════════════════════════════════════════════════
+const CHAR_ICONS = {
+  "Elsa":"assets/elsa.png","Anna":"assets/anna.png","Ariel":"assets/ariel.png","Mulán":"assets/mulan.png",
+  "Moana":"assets/moana.png","Rapunzel":"assets/rapunzel.png","Tiana":"assets/tiana.png","Jasmine":"assets/jasmine.png",
+  "Mérida":"assets/merida.png","Bella":"assets/bella.png","Cenicienta":"assets/cenicienta.png","Blancanieves":"assets/blancanieves.png",
+  "Simba":"assets/simba.png","Aladdín":"assets/aladdin.png","Hércules":"assets/hercules.png","Peter Pan":"assets/peter-pan.png",
+  "Mowgli":"assets/mowgli.png","Tarzán":"assets/tarzan.png","Flynn Rider":"assets/flynn-rider.png","Woody":"assets/woody.png",
+  "Buzz Lightyear":"assets/buzz-lightyear.png","Sulley":"assets/sulley.png","Mike Wazowski":"assets/mike-wazowski.png","Rayo McQueen":"assets/rayo-mcqueen.png",
+  "Joy":"assets/joy.png","Miguel":"assets/miguel.png","Stitch":"assets/stitch.png","Genio":"assets/genio.png",
+  "Baymax":"assets/baymax.png","Olaf":"assets/olaf.png","Dory":"assets/dory.png","Mickey Mouse":"assets/mickey.png",
+  "Maléfica":"assets/malefica.png","Úrsula":"assets/ursula.png","Scar":"assets/scar.png","Hades":"assets/hades.png",
+  "Vanellope":"assets/vanellope.png","Cruella de Vil":"assets/cruella.png","Jafar":"assets/jafar.png","Pocahontas":"assets/pocahontas.png",
+};
+
+const breeds = [
+{name:'Elsa', emoji:'❄️', tagline:'Fuerza contenida, corazón de hielo que se derrite por los suyos',
+ traits:['Reservada','Poderosa','Sensible','Autocontrolada'],
+ desc:'Llevas dentro una fuerza que durante mucho tiempo intentaste esconder por miedo a hacer daño. Prefieres la distancia y el control antes que exponerte, pero cuando por fin te abres, lo haces con una intensidad que sorprende a quien te rodea. Eres profundamente sensible bajo esa coraza fría, y tu lealtad hacia quienes de verdad te importan no tiene límite.',
+ profile:{ambicion:40,sociabilidad:20,lealtad:75,independencia:90,idealismo:55,espontaneidad:15,sarcasmo:20,orgullo:60,sensibilidad:80},
+ compat:{good:'Mulán',goodWhy:'Ambas prefieren la disciplina y el autocontrol antes que exponer sus emociones; se entienden sin necesidad de hablar mucho.',clash:'Genio',clashWhy:'La efusividad constante del Genio choca con tu necesidad de espacio y control emocional.'}},
+{name:'Anna', emoji:'☃️', tagline:'El corazón siempre por delante, pase lo que pase',
+ traits:['Impulsiva','Leal','Optimista','Sociable'],
+ desc:'Vives con el corazón por delante: te lanzas a las relaciones, a los planes y a los afectos sin medir demasiado el riesgo. Tu lealtad es incondicional y tu optimismo, casi indestructible, aunque eso también te hace vulnerable cuando las cosas no salen como esperabas. Necesitas gente cerca para sentirte tú misma.',
+ profile:{ambicion:35,sociabilidad:99,lealtad:85,independencia:25,idealismo:80,espontaneidad:90,sarcasmo:30,orgullo:20,sensibilidad:87},
+ compat:{good:'Olaf',goodWhy:'Compartís el mismo optimismo desbordante y la necesidad de estar rodeados de cariño.',clash:'Maléfica',clashWhy:'Tu confianza ciega en la gente choca de frente con el recelo y el orgullo herido de Maléfica.'}},
+{name:'Ariel', emoji:'🧜‍♀️', tagline:'Siempre mirando hacia un mundo que aún no conoce',
+ traits:['Soñadora','Curiosa','Sensible','Desobediente'],
+ desc:'Sientes que perteneces a un mundo distinto al que te tocó, y esa inquietud te empuja a explorar más allá de lo permitido. Eres extremadamente sensible y te dejas llevar por la curiosidad sin pensar demasiado en las consecuencias. Cuando algo te fascina, no hay quien te pare.',
+ profile:{ambicion:42,sociabilidad:70,lealtad:60,independencia:88,idealismo:75,espontaneidad:85,sarcasmo:25,orgullo:45,sensibilidad:94},
+ compat:{good:'Rapunzel',goodWhy:'Las dos vivís atrapadas entre la curiosidad por el mundo exterior y el deseo de escribir vuestra propia historia.',clash:'Mulán',clashWhy:'Tu impulsividad choca con la disciplina y la planificación estricta de Mulán.'}},
+{name:'Mulán', emoji:'⚔️', tagline:'Disciplina y honor por encima de cualquier expectativa ajena',
+ traits:['Disciplinada','Valiente','Leal','Estratégica'],
+ desc:'Cuando algo te importa de verdad, lo persigues con una disciplina que pocos igualan. No necesitas que nadie valide tus decisiones: confías en tu criterio y estás dispuesta a romper las normas si eso significa hacer lo correcto. Bajo esa fachada firme hay una lealtad feroz hacia los tuyos.',
+ profile:{ambicion:56,sociabilidad:40,lealtad:97,independencia:81,idealismo:65,espontaneidad:24,sarcasmo:20,orgullo:40,sensibilidad:33},
+ compat:{good:'Moana',goodWhy:'Comparten ambición, determinación y una lealtad muy fuerte hacia su gente.',clash:'Peter Pan',clashWhy:'Tu sentido del deber choca con la irresponsabilidad despreocupada de Peter Pan.'}},
+{name:'Moana', emoji:'🌊', tagline:'Un llamado que no puede ignorar, venga de donde venga',
+ traits:['Aventurera','Decidida','Idealista','Independiente'],
+ desc:'Sientes un llamado que no puedes ignorar, aunque eso implique dejar atrás la seguridad de lo conocido. Eres tremendamente independiente y decidida, pero también profundamente idealista: crees que el mundo puede volver a encontrar su equilibrio. La aventura no te da miedo, te da vida.',
+ profile:{ambicion:85,sociabilidad:55,lealtad:80,independencia:99,idealismo:75,espontaneidad:55,sarcasmo:25,orgullo:35,sensibilidad:55},
+ compat:{good:'Mulán',goodWhy:'Comparten determinación y una lealtad profunda hacia quienes protegen.',clash:'Baymax',clashWhy:'Tu necesidad de explorar y arriesgarte contrasta con la cautela y la calma extrema de Baymax.'}},
+{name:'Rapunzel', emoji:'🌼', tagline:'Recuperando el tiempo perdido a base de curiosidad',
+ traits:['Soñadora','Curiosa','Sensible','Valiente'],
+ desc:'Después de tanto tiempo soñando con el mundo exterior, cuando por fin lo tienes delante te lo tomas todo con una curiosidad casi desbordante. Eres idealista, sensible y te emocionas con facilidad, pero también sabes ser sorprendentemente valiente cuando de verdad quieres algo.',
+ profile:{ambicion:50,sociabilidad:70,lealtad:70,independencia:45,idealismo:85,espontaneidad:80,sarcasmo:20,orgullo:20,sensibilidad:75},
+ compat:{good:'Ariel',goodWhy:'Ambas comparten esa mezcla de curiosidad desbordante y ganas de vivir el mundo por primera vez.',clash:'Scar',clashWhy:'Tu idealismo luminoso no encaja con el cinismo y el resentimiento de Scar.'}},
+{name:'Tiana', emoji:'👑', tagline:'Nada que merezca la pena llega sin esfuerzo',
+ traits:['Trabajadora','Ambiciosa','Pragmática','Perseverante'],
+ desc:'Crees firmemente que nada que merezca la pena llega sin esfuerzo, y por eso trabajas más que nadie por lo que quieres. No eres de las que esperan a que la magia resuelva las cosas: prefieres el trabajo constante y los pies en el suelo. Esa ambición a veces te hace olvidar disfrutar el camino.',
+ profile:{ambicion:95,sociabilidad:55,lealtad:70,independencia:70,idealismo:50,espontaneidad:20,sarcasmo:25,orgullo:45,sensibilidad:40},
+ compat:{good:'Rayo McQueen',goodWhy:'Compartís una ambición feroz y la certeza de que el esfuerzo es lo que de verdad construye resultados.',clash:'Peter Pan',clashWhy:'Tu disciplina y sentido práctico chocan con la actitud despreocupada y sin planes de Peter Pan.'}},
+{name:'Jasmine', emoji:'🪄', tagline:'Nadie decide su historia excepto ella misma',
+ traits:['Independiente','Orgullosa','Decidida','Auténtica'],
+ desc:'No soportas que decidan por ti, y no tienes ningún problema en dejarlo claro. Eres independiente, orgullosa y tienes las ideas muy definidas sobre cómo quieres vivir tu vida, aunque eso choque con lo que se espera de ti. Cuando confías en alguien, esa lealtad es real, pero te la tienes que ganar.',
+ profile:{ambicion:65,sociabilidad:50,lealtad:60,independencia:85,idealismo:60,espontaneidad:45,sarcasmo:35,orgullo:65,sensibilidad:45},
+ compat:{good:'Mérida',goodWhy:'Ambas se niegan a que otros decidan su destino y comparten un orgullo similar.',clash:'Cenicienta',clashWhy:'La paciencia resignada de Cenicienta choca con tu necesidad de tomar el control de tu propia historia.'}},
+{name:'Mérida', emoji:'🏹', tagline:'A su manera, o no será',
+ traits:['Rebelde','Independiente','Orgullosa','Impulsiva'],
+ desc:'Haces las cosas a tu manera, y no hay tradición ni expectativa que te haga cambiar de idea si no estás de acuerdo. Eres impulsiva, orgullosa y necesitas libertad para respirar. Bajo esa rebeldía hay una lealtad real hacia tu familia, aunque te cueste admitirlo en voz alta.',
+ profile:{ambicion:55,sociabilidad:35,lealtad:55,independencia:95,idealismo:45,espontaneidad:75,sarcasmo:40,orgullo:70,sensibilidad:35},
+ compat:{good:'Jasmine',goodWhy:'Comparten el mismo rechazo a que decidan por ellas y un orgullo parecido.',clash:'Baymax',clashWhy:'Tu rebeldía constante desconcierta la calma obediente y protocolaria de Baymax.'}},
+{name:'Bella', emoji:'📚', tagline:'Un libro y una buena conversación, antes que encajar',
+ traits:['Sensible','Intelectual','Empática','Independiente'],
+ desc:'Prefieres un libro y una buena conversación antes que encajar en lo que se espera de ti. Eres profundamente sensible y empática, capaz de ver más allá de las apariencias en la gente que te rodea. Tu independencia no es rebeldía ruidosa, es simplemente saber quién eres sin necesidad de demostrarlo.',
+ profile:{ambicion:40,sociabilidad:25,lealtad:75,independencia:70,idealismo:70,espontaneidad:25,sarcasmo:15,orgullo:30,sensibilidad:85},
+ compat:{good:'Pocahontas',goodWhy:'Ambas conectáis con el mundo desde la sensibilidad y la empatía antes que desde el impulso.',clash:'Hades',clashWhy:'Tu sensibilidad y tu forma pausada de ver el mundo no encajan con el sarcasmo cortante de Hades.'}},
+{name:'Cenicienta', emoji:'👠', tagline:'La bondad como forma de resistencia',
+ traits:['Paciente','Bondadosa','Esperanzada','Resiliente'],
+ desc:'Aunque la vida no te lo ha puesto fácil, sigues creyendo que las cosas pueden mejorar si mantienes la bondad y la paciencia. No buscas imponerte ni destacar, prefieres esperar tu momento con dignidad. Esa fe casi inquebrantable en que todo se acaba arreglando es tu mayor fortaleza.',
+ profile:{ambicion:30,sociabilidad:60,lealtad:80,independencia:35,idealismo:90,espontaneidad:20,sarcasmo:10,orgullo:15,sensibilidad:70},
+ compat:{good:'Woody',goodWhy:'Comparten una lealtad silenciosa y la capacidad de aguantar en los peores momentos sin perder la esperanza.',clash:'Jafar',clashWhy:'Tu bondad paciente es precisamente lo que alguien tan calculador como Jafar intentaría aprovechar.'}},
+{name:'Blancanieves', emoji:'🍎', tagline:'Ver lo bueno en todo el mundo, incluso cuando no debería',
+ traits:['Alegre','Confiada','Sociable','Ingenua'],
+ desc:'Ves lo bueno en todo el mundo, incluso cuando la experiencia debería enseñarte a desconfiar. Eres extremadamente sociable y alegre, de las que hacen amigos en cualquier sitio en cinco minutos. Esa confianza ciega en los demás es encantadora, aunque también te hace fácil de engañar.',
+ profile:{ambicion:20,sociabilidad:99,lealtad:70,independencia:20,idealismo:95,espontaneidad:29,sarcasmo:5,orgullo:10,sensibilidad:65},
+ compat:{good:'Mickey Mouse',goodWhy:'Ambos irradiáis una alegría genuina y una fe casi infantil en que todo saldrá bien.',clash:'Úrsula',clashWhy:'Tu confianza inmediata en los demás es justo lo que una manipuladora como Úrsula sabe explotar.'}},
+{name:'Simba', emoji:'🦁', tagline:'Convertir los propios errores en el origen del carácter',
+ traits:['Responsable','Leal','En crecimiento','Justo'],
+ desc:'Has tenido que aprender por las malas que huir de la responsabilidad no la hace desaparecer. Cuando por fin asumes tu lugar, lo haces con una lealtad y un sentido de la justicia que inspiran a quienes te rodean. Tu mayor fuerza es haber convertido tus propios errores en la base de tu carácter.',
+ profile:{ambicion:72,sociabilidad:65,lealtad:80,independencia:50,idealismo:53,espontaneidad:50,sarcasmo:30,orgullo:50,sensibilidad:60},
+ compat:{good:'Buzz Lightyear',goodWhy:'Ambos maduráis desde la inseguridad hasta convertiros en líderes leales en los que otros pueden confiar.',clash:'Scar',clashWhy:'Todo lo que tú construyes con esfuerzo y lealtad, Scar lo destruiría por ambición y resentimiento.'}},
+{name:'Aladdín', emoji:'🪔', tagline:'Improvisar y salir adelante con lo que hay',
+ traits:['Ingenioso','Adaptable','Espontáneo','Encantador'],
+ desc:'Te has acostumbrado a improvisar y salir adelante con lo que tienes, y eso te ha hecho encantador, rápido de reflejos y muy adaptable. Te mueves bien entre mundos distintos porque no dejas que las etiquetas te definan. Bajo el ingenio hay alguien que solo quiere que le quieran por quien es.',
+ profile:{ambicion:55,sociabilidad:70,lealtad:65,independencia:60,idealismo:60,espontaneidad:80,sarcasmo:62,orgullo:23,sensibilidad:50},
+ compat:{good:'Genio',goodWhy:'Compartís ingenio, espontaneidad y la habilidad de salir airosos de cualquier situación con una sonrisa.',clash:'Jafar',clashWhy:'Tu picardía con buen corazón es la antítesis de la ambición fría y calculadora de Jafar.'}},
+{name:'Hércules', emoji:'💪', tagline:'Hacer lo correcto, cueste el esfuerzo que cueste',
+ traits:['Idealista','Esforzado','Leal','Optimista'],
+ desc:'Crees en hacer lo correcto incluso cuando te cuesta más esfuerzo del que te gustaría admitir. Eres idealista hasta la médula y persigues tus metas con una energía casi inagotable, aunque a veces tropieces por el camino. Tu lealtad hacia la gente que quieres nunca se pone en duda.',
+ profile:{ambicion:70,sociabilidad:70,lealtad:75,independencia:40,idealismo:90,espontaneidad:55,sarcasmo:30,orgullo:30,sensibilidad:65},
+ compat:{good:'Buzz Lightyear',goodWhy:'Ambos creéis en un ideal más grande que vosotros mismos y os esforzáis sin descanso por alcanzarlo.',clash:'Hades',clashWhy:'Tu idealismo incansable choca directamente con el cinismo absoluto de Hades.'}},
+{name:'Peter Pan', emoji:'🍃', tagline:'Ninguna intención de crecer si eso cuesta la libertad',
+ traits:['Libre','Espontáneo','Divertido','Inmaduro'],
+ desc:'No tienes ninguna intención de crecer si eso significa perder la libertad de hacer lo que te apetezca cuando te apetezca. Eres espontáneo, divertido y el alma de cualquier aventura, pero comprometerte de verdad con algo o alguien te cuesta más de lo que dejas ver.',
+ profile:{ambicion:20,sociabilidad:75,lealtad:45,independencia:80,idealismo:70,espontaneidad:95,sarcasmo:55,orgullo:55,sensibilidad:30},
+ compat:{good:'Stitch',goodWhy:'Los dos vivís por y para el impulso del momento, sin planes ni ataduras.',clash:'Tiana',clashWhy:'Tu rechazo a cualquier responsabilidad choca frontalmente con la disciplina y el sentido práctico de Tiana.'}},
+{name:'Mowgli', emoji:'🐺', tagline:'Aprender de la experiencia directa, sin manual de instrucciones',
+ traits:['Curioso','Adaptable','Espontáneo','Ingenuo'],
+ desc:'Te adaptas a casi cualquier entorno con una curiosidad natural que no entiende de fronteras ni de normas fijas. No te importa demasiado encajar en un molde: prefieres aprender de la experiencia directa antes que de lo que te cuenten. Esa mezcla de ingenuidad y espontaneidad te hace sorprendentemente valiente.',
+ profile:{ambicion:25,sociabilidad:55,lealtad:60,independencia:75,idealismo:55,espontaneidad:80,sarcasmo:30,orgullo:25,sensibilidad:45},
+ compat:{good:'Stitch',goodWhy:'Ambos os movéis por instinto y curiosidad antes que por plan alguno.',clash:'Maléfica',clashWhy:'Tu ingenuidad confiada es justo lo que el orgullo calculador de Maléfica no soporta ni entiende.'}},
+{name:'Tarzán', emoji:'🌴', tagline:'Más cómodo en su terreno que rodeado de gente que no le entiende',
+ traits:['Independiente','Leal','Instintivo','Reservado'],
+ desc:'Te sientes más cómodo en tu propio terreno que rodeado de gente que no termina de entenderte. Eres profundamente leal a los tuyos, aunque tu forma de relacionarte sea distinta a la convencional. Tu independencia no viene de la arrogancia, sino de haber tenido que valerte por ti mismo desde siempre.',
+ profile:{ambicion:20,sociabilidad:20,lealtad:80,independencia:85,idealismo:60,espontaneidad:50,sarcasmo:10,orgullo:30,sensibilidad:60},
+ compat:{good:'Pocahontas',goodWhy:'Ambos vivís conectados a la naturaleza y compartís una lealtad silenciosa pero absoluta.',clash:'Mike Wazowski',clashWhy:'La necesidad constante de ruido y atención de Mike choca con tu forma reservada y silenciosa de estar en el mundo.'}},
+{name:'Flynn Rider', emoji:'😏', tagline:'Encantador por fuera, en redención por dentro',
+ traits:['Encantador','Ingenioso','Pícaro','En redención'],
+ desc:'Te presentas como alguien despreocupado y encantador, siempre con una salida ingeniosa a mano. Detrás de esa fachada de pícaro hay alguien que ha aprendido, no sin esfuerzo, que preocuparse de verdad por alguien vale más que cualquier tesoro. Tu lealtad tarda en llegar, pero cuando llega, es total.',
+ profile:{ambicion:60,sociabilidad:75,lealtad:45,independencia:65,idealismo:40,espontaneidad:75,sarcasmo:70,orgullo:60,sensibilidad:35},
+ compat:{good:'Genio',goodWhy:'Ambos usáis el ingenio y el humor como escudo, aunque bajo esa fachada haya mucho más corazón del que aparentáis.',clash:'Baymax',clashWhy:'Tu picardía calculada choca con la sinceridad literal y sin filtros de Baymax.'}},
+{name:'Woody', emoji:'🤠', tagline:'Lealtad incondicional, aunque cueste soltar el control',
+ traits:['Leal','Protector','Ansioso','Entregado'],
+ desc:'Tu lealtad es prácticamente incondicional: cuando alguien te importa, harías lo que fuera por protegerlo. Esa entrega tan grande a veces te lleva a querer controlarlo todo, por miedo a que las cosas cambien o a quedarte atrás. En el fondo, solo necesitas sentir que sigues siendo importante para los tuyos.',
+ profile:{ambicion:35,sociabilidad:65,lealtad:98,independencia:30,idealismo:65,espontaneidad:25,sarcasmo:25,orgullo:45,sensibilidad:60},
+ compat:{good:'Baymax',goodWhy:'Compartís una lealtad y una entrega hacia los demás que están por encima de casi todo lo demás.',clash:'Flynn Rider',clashWhy:'Tu necesidad de compromiso y estabilidad choca con la naturaleza escurridiza y despreocupada de Flynn.'}},
+{name:'Buzz Lightyear', emoji:'🚀', tagline:'Al infinito y más allá, incluso después de descubrir la verdad',
+ traits:['Confiado','Idealista','Leal','Orgulloso'],
+ desc:'Empezaste creyendo que eras algo que no eras, y en vez de hundirte por ello, aprendiste a redefinir tu propósito con la misma confianza de siempre. Eres idealista, ambicioso y profundamente leal a tu gente, aunque tu orgullo a veces te cueste admitir que necesitas ayuda.',
+ profile:{ambicion:70,sociabilidad:60,lealtad:80,independencia:45,idealismo:85,espontaneidad:40,sarcasmo:15,orgullo:55,sensibilidad:40},
+ compat:{good:'Hércules',goodWhy:'Ambos perseguís un ideal heroico con una energía y una lealtad que contagian a los demás.',clash:'Vanellope',clashWhy:'Tu necesidad de orden y propósito choca con el caos alegre y anárquico de Vanellope.'}},
+{name:'Sulley', emoji:'👹', tagline:'Presencia imponente, corazón de peluche',
+ traits:['Protector','Tierno','Leal','Sociable'],
+ desc:'Tienes una presencia que impone, pero por dentro eres de los más tiernos y protectores que existen. No necesitas demostrar nada a base de fuerza: tu manera de cuidar a los que quieres es mucho más silenciosa y constante. La gente que te conoce de verdad sabe que esa imagen imponente esconde a alguien muy sensible.',
+ profile:{ambicion:40,sociabilidad:70,lealtad:85,independencia:35,idealismo:60,espontaneidad:35,sarcasmo:25,orgullo:30,sensibilidad:70},
+ compat:{good:'Baymax',goodWhy:'Ambos sois grandes protectores con una ternura que contrasta con vuestra imponente presencia.',clash:'Jafar',clashWhy:'Tu lealtad genuina y desinteresada es lo opuesto a la ambición fría y manipuladora de Jafar.'}},
+{name:'Mike Wazowski', emoji:'👁️', tagline:'Hablar más que nadie para conseguir lo que se propone',
+ traits:['Ambicioso','Hablador','Sociable','Esforzado'],
+ desc:'Hablas más que nadie y no te da miedo hacer ruido para conseguir lo que te propones. Eres ambicioso, muy sociable y usas el humor como herramienta para caer bien y destacar. Puede que a veces tu ambición vaya más rápido que tu talento natural, pero tu esfuerzo constante compensa cualquier carencia.',
+ profile:{ambicion:80,sociabilidad:85,lealtad:70,independencia:30,idealismo:55,espontaneidad:60,sarcasmo:65,orgullo:60,sensibilidad:35},
+ compat:{good:'Genio',goodWhy:'Ambos sois puro carisma verbal, energía social y ganas constantes de ser el centro de la conversación.',clash:'Tarzán',clashWhy:'Tu necesidad de hablar y destacar constantemente agota la naturaleza silenciosa y reservada de Tarzán.'}},
+{name:'Rayo McQueen', emoji:'🏎️', tagline:'Competitivo de nacimiento, con más corazón del que admite',
+ traits:['Competitivo','Ambicioso','Orgulloso','En evolución'],
+ desc:'Estás acostumbrado a competir por ser el mejor, y durante mucho tiempo eso fue lo único que te importó. El orgullo y la ambición te definen, pero también has tenido que aprender, a las malas, que ganar solo no sirve de mucho si no tienes a nadie con quien celebrarlo.',
+ profile:{ambicion:85,sociabilidad:60,lealtad:55,independencia:60,idealismo:45,espontaneidad:65,sarcasmo:45,orgullo:80,sensibilidad:30},
+ compat:{good:'Tiana',goodWhy:'Ambos compartís una ambición feroz y la certeza de que solo se llega lejos con esfuerzo real.',clash:'Olaf',clashWhy:'Tu competitividad constante no encaja con la actitud despreocupada y sin ego de Olaf.'}},
+{name:'Joy', emoji:'😄', tagline:'Misión personal: que todos a su alrededor estén bien',
+ traits:['Optimista','Sociable','Idealista','Enérgica'],
+ desc:'Tu misión personal es que todo el mundo a tu alrededor esté bien, y te cuesta aceptar cuando eso no depende solo de ti. Eres optimista casi por naturaleza, sociable y contagias energía positiva allá donde vas. Aprender que no pasa nada por no estar bien todo el tiempo es tu asignatura pendiente.',
+ profile:{ambicion:60,sociabilidad:80,lealtad:75,independencia:25,idealismo:98,espontaneidad:70,sarcasmo:20,orgullo:40,sensibilidad:55},
+ compat:{good:'Olaf',goodWhy:'Ambos veis el lado bueno de cualquier situación, incluso cuando nadie más lo encuentra.',clash:'Hades',clashWhy:'Tu optimismo incansable es justo lo que el cinismo de Hades disfruta intentando apagar.'}},
+{name:'Miguel', emoji:'🎸', tagline:'Desobedecer cuando la pasión de verdad merece la pena',
+ traits:['Apasionado','Soñador','Sensible','Desobediente'],
+ desc:'Tienes una pasión tan grande por lo que amas que estás dispuesto a desobedecer para perseguirla. Eres idealista y sensible, y necesitas que lo que haces conecte con algo más profundo que tú mismo. Esa mezcla de ambición y emoción es lo que te hace conectar tan fácilmente con los demás.',
+ profile:{ambicion:81,sociabilidad:60,lealtad:70,independencia:66,idealismo:80,espontaneidad:70,sarcasmo:30,orgullo:35,sensibilidad:65},
+ compat:{good:'Rapunzel',goodWhy:'Ambos desobedecéis las normas cuando sentís que vuestra pasión merece la pena, sin dejar de ser sensibles.',clash:'Scar',clashWhy:'Tu pasión luminosa y familiar no tiene nada que ver con el resentimiento frío de Scar.'}},
+{name:'Stitch', emoji:'👽', tagline:'Puro caos hasta encontrar a quien merezca la pena quedarse',
+ traits:['Caótico','Leal','Espontáneo','Impredecible'],
+ desc:'Empiezas siendo puro caos, sin ninguna intención de encajar en nada ni en nadie. Pero cuando por fin encuentras a alguien que te acepta tal y como eres, tu lealtad se vuelve feroz e inquebrantable. Sigues siendo impredecible, pero ahora tienes una razón para quedarte.',
+ profile:{ambicion:15,sociabilidad:45,lealtad:70,independencia:70,idealismo:35,espontaneidad:95,sarcasmo:50,orgullo:40,sensibilidad:45},
+ compat:{good:'Peter Pan',goodWhy:'Ambos vivís sin reglas fijas y os mueve el impulso del momento antes que cualquier plan.',clash:'Tiana',clashWhy:'Tu caos constante desespera a alguien tan estructurado y disciplinado como Tiana.'}},
+{name:'Genio', emoji:'🧞', tagline:'Puro espectáculo social, con un deseo secreto de libertad',
+ traits:['Divertido','Generoso','Sociable','Ingenioso'],
+ desc:'Eres pura energía social: divertido, generoso y capaz de convertir cualquier situación en un espectáculo. Usas el humor sin parar, pero detrás de tanto chiste hay alguien que solo desea, más que nada, ser libre de verdad. Tu generosidad hacia los demás es tan grande que a veces te olvidas de pedir algo para ti.',
+ profile:{ambicion:30,sociabilidad:98,lealtad:75,independencia:20,idealismo:75,espontaneidad:90,sarcasmo:80,orgullo:20,sensibilidad:55},
+ compat:{good:'Aladdín',goodWhy:'Compartís el mismo ingenio rápido y las ganas de resolver cualquier lío con una sonrisa.',clash:'Elsa',clashWhy:'Tu efusividad sin filtro agota la necesidad de calma y control de Elsa.'}},
+{name:'Baymax', emoji:'🤖', tagline:'Sinceridad literal, lealtad sin condiciones',
+ traits:['Cuidador','Leal','Calmado','Literal'],
+ desc:'Tu única prioridad es que la persona que cuidas esté bien, y lo haces con una paciencia y una literalidad que a veces resulta entrañable. No entiendes de sarcasmo ni de segundas intenciones: dices las cosas tal cual son. Esa sinceridad tan pura te convierte en alguien en quien se puede confiar sin dudarlo.',
+ profile:{ambicion:2,sociabilidad:40,lealtad:95,independencia:15,idealismo:70,espontaneidad:10,sarcasmo:5,orgullo:5,sensibilidad:60},
+ compat:{good:'Woody',goodWhy:'Ambos anteponéis el bienestar de la persona que protegéis a cualquier otra cosa.',clash:'Hades',clashWhy:'Tu sinceridad literal y tu calma no tienen ningún punto de conexión con el sarcasmo constante de Hades.'}},
+{name:'Olaf', emoji:'⛄', tagline:'El lado bueno de absolutamente todo',
+ traits:['Ingenuo','Alegre','Cariñoso','Sincero'],
+ desc:'Ves el lado bueno de absolutamente todo, incluso de las cosas que deberían darte miedo. Eres puro cariño y sociabilidad, sin ningún interés en destacar ni en tener razón. Esa inocencia tan sincera hace que la gente a tu alrededor no pueda evitar quererte.',
+ profile:{ambicion:2,sociabilidad:95,lealtad:80,independencia:10,idealismo:98,espontaneidad:64,sarcasmo:15,orgullo:5,sensibilidad:60},
+ compat:{good:'Anna',goodWhy:'Ambos compartís un optimismo genuino y unas ganas enormes de que todos a vuestro alrededor estén bien.',clash:'Scar',clashWhy:'Tu inocencia luminosa es justo lo opuesto al cinismo calculador de Scar.'}},
+{name:'Dory', emoji:'🐟', tagline:'Vivir el presente, literalmente, sin cargar con nada más',
+ traits:['Espontánea','Optimista','Sociable','Despistada'],
+ desc:'Vives literalmente el presente, sin cargar con lo de ayer ni preocuparte demasiado por lo de mañana. Eres extremadamente sociable y optimista, capaz de hacer amigos en cualquier situación por complicada que parezca. Esa espontaneidad tuya, aunque a veces despiste, también te hace increíblemente valiente sin darte cuenta.',
+ profile:{ambicion:15,sociabilidad:85,lealtad:65,independencia:30,idealismo:80,espontaneidad:95,sarcasmo:20,orgullo:10,sensibilidad:50},
+ compat:{good:'Genio',goodWhy:'Ambos vivís con una espontaneidad contagiosa y una energía social que ilumina cualquier sitio.',clash:'Mulán',clashWhy:'Tu forma de improvisarlo todo choca con la disciplina y la planificación estricta de Mulán.'}},
+{name:'Mickey Mouse', emoji:'🐭', tagline:'Caer bien a todo el mundo, sin ningún esfuerzo aparente',
+ traits:['Amistoso','Optimista','Sencillo','Sociable'],
+ desc:'Tienes una capacidad casi única para caer bien a todo el mundo sin ningún esfuerzo aparente. Eres optimista, amistoso y evitas el conflicto siempre que puedes, prefiriendo que las cosas se resuelvan con buena voluntad. Esa sencillez tan genuina es, en realidad, tu mayor virtud.',
+ profile:{ambicion:48,sociabilidad:90,lealtad:80,independencia:14,idealismo:85,espontaneidad:67,sarcasmo:8,orgullo:2,sensibilidad:50},
+ compat:{good:'Blancanieves',goodWhy:'Ambos irradiáis la misma alegría sincera y una fe inquebrantable en la bondad de los demás.',clash:'Hades',clashWhy:'Tu optimismo sencillo no tiene ningún punto de contacto con el sarcasmo mordaz de Hades.'}},
+{name:'Maléfica', emoji:'🖤', tagline:'Un orgullo tan grande como la herida que lo originó',
+ traits:['Orgullosa','Independiente','Fría','Poderosa'],
+ desc:'Tu orgullo es tan grande como la herida que lo originó, y no perdonas fácilmente a quien te ha traicionado. Eres extremadamente independiente y no necesitas la validación de nadie para sentirte poderosa. Bajo esa frialdad hay más dolor del que jamás dejarías ver.',
+ profile:{ambicion:70,sociabilidad:15,lealtad:30,independencia:95,idealismo:10,espontaneidad:25,sarcasmo:60,orgullo:95,sensibilidad:55},
+ compat:{good:'Elsa',goodWhy:'Ambas os protegéis del mundo con distancia y control, aunque por dentro carguéis con mucho más de lo que mostráis.',clash:'Anna',clashWhy:'La confianza ciega e inmediata de Anna es justo lo que tu orgullo herido no puede soportar.'}},
+{name:'Úrsula', emoji:'🐙', tagline:'Sabe exactamente lo que deseas, y lo usa a su favor',
+ traits:['Manipuladora','Ambiciosa','Teatral','Astuta'],
+ desc:'Sabes leer perfectamente lo que la gente desea, y no dudas en usarlo a tu favor si te conviene. Eres ambiciosa, teatral y disfrutas del poder que da controlar una situación desde las sombras. No confías fácilmente en nadie, porque sabes exactamente lo que tú misma serías capaz de hacer.',
+ profile:{ambicion:90,sociabilidad:60,lealtad:20,independencia:70,idealismo:15,espontaneidad:50,sarcasmo:75,orgullo:70,sensibilidad:30},
+ compat:{good:'Jafar',goodWhy:'Ambos compartís una ambición sin límites y la misma facilidad para manipular a quien haga falta.',clash:'Cenicienta',clashWhy:'La bondad paciente de Cenicienta es precisamente el tipo de ingenuidad que más te cuesta entender.'}},
+{name:'Scar', emoji:'🌑', tagline:'La envidia como compañera de viaje desde hace demasiado tiempo',
+ traits:['Resentido','Calculador','Sarcástico','Ambicioso'],
+ desc:'La envidia te ha acompañado durante tanto tiempo que ya casi no recuerdas otra forma de sentir. Eres inteligente y calculador, y usas el sarcasmo como arma antes que como defensa. Tu ambición nunca ha sido silenciosa, aunque tu forma de conseguir las cosas sí lo haya sido.',
+ profile:{ambicion:85,sociabilidad:40,lealtad:15,independencia:60,idealismo:10,espontaneidad:35,sarcasmo:85,orgullo:80,sensibilidad:25},
+ compat:{good:'Úrsula',goodWhy:'Ambos disfrutáis manipulando desde la sombra para conseguir el poder que sentís que merecéis.',clash:'Simba',clashWhy:'Todo lo que Simba construye con lealtad y esfuerzo es justo lo que tu resentimiento querría destruir.'}},
+{name:'Hades', emoji:'🔥', tagline:'Nada tan serio como para no comentarlo con sarcasmo',
+ traits:['Sarcástico','Cínico','Controlador','Ingenioso'],
+ desc:'Nada te parece tan serio como para no comentarlo con un chiste ácido, ni siquiera lo que de verdad te importa. Usas el sarcasmo como escudo permanente y el cinismo como forma de no decepcionarte de nada ni de nadie. Controlar la situación te da mucha más tranquilidad que confiar en que las cosas salgan bien solas.',
+ profile:{ambicion:75,sociabilidad:65,lealtad:25,independencia:65,idealismo:5,espontaneidad:60,sarcasmo:98,orgullo:65,sensibilidad:20},
+ compat:{good:'Scar',goodWhy:'Compartís el mismo humor afilado y la misma desconfianza hacia el idealismo ajeno.',clash:'Olaf',clashWhy:'Tu cinismo constante no soporta la inocencia y la alegría sin condiciones de Olaf.'}},
+{name:'Vanellope', emoji:'🍭', tagline:'Sin encajar en el molde, y sin que le importe lo más mínimo',
+ traits:['Caótica','Orgullosa','Sarcástica','Auténtica'],
+ desc:'No encajas en el molde que se supone que deberías tener, y la verdad es que no te importa lo más mínimo. Eres caótica, espontánea y muy orgullosa, con un punto de sarcasmo que usas para defenderte antes de que te hagan daño. Bajo esa fachada difícil hay una lealtad real hacia quien se gana tu confianza.',
+ profile:{ambicion:60,sociabilidad:43,lealtad:65,independencia:80,idealismo:50,espontaneidad:90,sarcasmo:77,orgullo:70,sensibilidad:35},
+ compat:{good:'Stitch',goodWhy:'Ambos sois caos con patas, imprevisibles por naturaleza, pero increíblemente leales una vez que os ganáis la confianza del otro.',clash:'Cenicienta',clashWhy:'Tu actitud desafiante y ruidosa choca frontalmente con la paciencia silenciosa de Cenicienta.'}},
+{name:'Cruella de Vil', emoji:'🎀', tagline:'Dramatismo, ambición y cero interés en pedir perdón',
+ traits:['Dramática','Ambiciosa','Orgullosa','Excéntrica'],
+ desc:'Vives con una intensidad y un dramatismo que no pasan desapercibidos allá donde vas. Tu ambición y tu orgullo van siempre por delante, y te cuesta muy poco anteponer lo que quieres a cualquier otra consideración. Eres pura fachada, hasta que descubres que en realidad esa fachada también es tú.',
+ profile:{ambicion:80,sociabilidad:70,lealtad:10,independencia:75,idealismo:5,espontaneidad:70,sarcasmo:70,orgullo:90,sensibilidad:15},
+ compat:{good:'Úrsula',goodWhy:'Ambas compartís el gusto por el dramatismo, la ambición sin filtros y el poco interés en pedir perdón.',clash:'Baymax',clashWhy:'Tu egocentrismo dramático no tiene ningún punto en común con la entrega desinteresada de Baymax.'}},
+{name:'Jafar', emoji:'🐍', tagline:'El poder como única motivación real',
+ traits:['Ambicioso','Calculador','Frío','Implacable'],
+ desc:'El poder es lo único que de verdad te motiva, y estás dispuesto a esperar, planear y manipular lo que haga falta para conseguirlo. Eres frío, calculador y no dejas que la lealtad ni la empatía se interpongan en tus planes. Tu ambición no tiene techo, y eso te hace tan temido como respetado.',
+ profile:{ambicion:98,sociabilidad:35,lealtad:10,independencia:70,idealismo:5,espontaneidad:30,sarcasmo:55,orgullo:75,sensibilidad:20},
+ compat:{good:'Úrsula',goodWhy:'Compartís la misma ambición sin límites y la misma frialdad calculadora para conseguir el poder.',clash:'Aladdín',clashWhy:'Tu ambición fría es justo lo opuesto al ingenio de corazón cálido de Aladdín.'}},
+{name:'Pocahontas', emoji:'🍂', tagline:'Guiada por lo que siente, más que por la costumbre',
+ traits:['Espiritual','Idealista','Sensible','Independiente'],
+ desc:'Te mueves guiada por una conexión profunda con lo que sientes y con el mundo que te rodea, más que por lo que dicta la lógica o la costumbre. Eres idealista, sensible y muy independiente en tu forma de pensar, capaz de tender puentes donde otros solo ven diferencias.',
+ profile:{ambicion:45,sociabilidad:55,lealtad:70,independencia:75,idealismo:85,espontaneidad:40,sarcasmo:15,orgullo:35,sensibilidad:80},
+ compat:{good:'Tarzán',goodWhy:'Ambos vivís profundamente conectados a la naturaleza y compartís una sensibilidad silenciosa poco habitual.',clash:'Jafar',clashWhy:'Tu conexión espiritual y tu idealismo no tienen absolutamente nada en común con la ambición fría y calculadora de Jafar.'}},
+];
+
+// ══════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════
+let current = 0;
+let answers = new Array(Qs.length).fill(null);
+let scores  = {};
+DIMS.forEach(d => scores[d] = 0);
+let currentResult = null;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function initDots() {
+  const c = document.getElementById('prog-dots');
+  c.innerHTML = '';
+  for (let i=0;i<Qs.length;i++) {
+    const d = document.createElement('span');
+    d.className='prog-star'; d.id=`dot-${i}`; d.textContent='⭐';
+    c.appendChild(d);
+  }
+}
+function updateDots() {
+  for (let i=0;i<Qs.length;i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (!d) continue;
+    d.className = 'prog-star' + (answers[i]!==null?' done':(i===current?' cur':''));
+  }
+}
+
+function renderQ() {
+  const q = Qs[current];
+  document.getElementById('q-tag').textContent = q.tag;
+  document.getElementById('q-text').textContent = q.text;
+
+  const container = document.getElementById('opts');
+  container.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const sel = answers[current];
+
+  q.opts.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    if (sel===i) btn.classList.add('sp');
+    btn.innerHTML=`<span class="opt-letter">${letters[i]}</span>${opt.t}`;
+    btn.addEventListener('click',()=>selectOpt(i));
+    container.appendChild(btn);
+  });
+
+  const pct = (current/Qs.length)*100;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = `Pregunta ${current+1} de ${Qs.length}`;
+  const done = answers.filter(a=>a!==null).length;
+  document.getElementById('prog-frac').textContent = `${done} / ${Qs.length}`;
+  updateDots();
+  updateNav();
+
+  const card = document.getElementById('q-card');
+  card.style.animation='none'; void card.offsetWidth;
+  card.style.animation='popIn .35s cubic-bezier(.34,1.4,.64,1) both';
+}
+
+function applyScore(optIdx, sign) {
+  const s = Qs[current].opts[optIdx].s;
+  DIMS.forEach(d => { if(s[d]) scores[d]=(scores[d]||0)+sign*s[d]; });
+}
+
+function selectOpt(idx) {
+  if (answers[current]!==null) applyScore(answers[current],-1);
+  applyScore(idx,+1);
+  answers[current]=idx;
+
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach((btn,i)=>{
+    btn.classList.remove('sp');
+    if (answers[current]===i) btn.classList.add('sp');
+  });
+  updateNav();
+  setTimeout(()=>goNext(),380);
+}
+
+function hasAnswer() {
+  const s = answers[current];
+  return s!==null && (!Array.isArray(s)||s.length>0);
+}
+function updateNav() {
+  document.getElementById('btn-prev').disabled = current===0;
+  const nb = document.getElementById('btn-next');
+  nb.disabled = !hasAnswer();
+  nb.textContent = current===Qs.length-1 ? 'Ver mi resultado ✨' : 'Siguiente →';
+}
+function goNext() {
+  if (!hasAnswer()) return;
+  if (current<Qs.length-1) { current++; renderQ(); }
+  else triggerResult();
+}
+function goBack() {
+  if (current>0) { current--; renderQ(); }
+}
+
+// ══════════════════════════════════════════════════════
+// SCORING V8 — distancia euclídea ponderada + corrección de
+// sesgo de centroide. Motor heredado del test de razas de perro,
+// recalibrado para estas 40 preguntas y estos 40 personajes con
+// una simulación de 20.000 usuarios respondiendo al azar.
+//
+// A diferencia del test de perros (20 razas, ratio de victorias
+// 7.2x), con el doble de personajes en el mismo espacio de 9
+// dimensiones el reparto es necesariamente más apretado: algunos
+// personajes con perfiles "moderados" (Moana, Mickey, Anna...)
+// ganan como resultado nº1 con menor frecuencia bajo respuestas
+// aleatorias puras que personajes con perfiles más extremos
+// (Stitch, Genio, Woody). Esto es constatado y esperado: en la
+// práctica, las respuestas reales de una persona están correla-
+// cionadas entre sí (no son aleatorias independientes como en la
+// simulación de calibración), así que la distribución real es
+// bastante más suave que este "peor caso" de prueba. Además, el
+// podio (top 3) siempre se muestra, así que ningún personaje
+// queda invisible para el usuario aunque rara vez sea el nº1.
+//
+// Validación (20.000 usuarios simulados, respuestas aleatorias):
+// - 40/40 personajes alcanzables como resultado nº1
+// - Ratio de victorias máx/mín: ~30x (vs 7.2x en el test de 20
+//   razas; esperable al doblar el roster en el mismo espacio)
+// - Techo y suelo de score calibrados con percentil 99 y percentil
+//   1 del score del líder sobre las 20.000 simulaciones
+//
+// Si se cambian preguntas o perfiles en el futuro, re-ejecutar el
+// harness de calibración para actualizar POP_STATS y SCORE_FLOOR/CEIL.
+// ══════════════════════════════════════════════════════
+
+const POP_STATS = {
+  ambicion:      { mean: 18.5, std: 6.0 },
+  sociabilidad:  { mean: 9.5,  std: 3.6 },
+  lealtad:       { mean: 17.5, std: 5.7 },
+  independencia: { mean: 16.2, std: 4.9 },
+  idealismo:     { mean: 12.0, std: 4.3 },
+  espontaneidad: { mean: 15.8, std: 5.4 },
+  sarcasmo:      { mean: 11.3, std: 4.3 },
+  orgullo:       { mean: 15.4, std: 4.5 },
+  sensibilidad:  { mean: 14.2, std: 5.0 },
+};
+
+const DIM_WEIGHTS = (function() {
+  const weights = {};
+  DIMS.forEach(d => {
+    const vals = breeds.map(b => b.profile[d]);
+    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const variance = vals.reduce((a,b)=>a+Math.pow(b-mean,2),0)/vals.length;
+    weights[d] = variance;
+  });
+  const totalW = Object.values(weights).reduce((a,b)=>a+b,0);
+  const scale = DIMS.length / totalW;
+  DIMS.forEach(d => weights[d] *= scale);
+  return weights;
+})();
+
+const CENTROID_BIAS = (function() {
+  const centroid = {};
+  DIMS.forEach(d => centroid[d] = 50);
+  const distances = breeds.map(breed => {
+    let sq = 0;
+    DIMS.forEach(d => { const diff = breed.profile[d]-centroid[d]; sq += DIM_WEIGHTS[d]*diff*diff; });
+    return Math.sqrt(sq/DIMS.length);
+  });
+  const meanDist = distances.reduce((a,b)=>a+b,0)/distances.length;
+  const bias = {};
+  breeds.forEach((breed,i) => {
+    bias[breed.name] = (distances[i] - meanDist) * 0.5;
+  });
+  return bias;
+})();
+
+const SCORE_CEIL = 91.7;
+const SCORE_FLOOR = 79.8;
+
+function computeRanking() {
+  const userNorm = {};
+  DIMS.forEach(d => {
+    const { mean, std } = POP_STATS[d];
+    const z = ((scores[d] || 0) - mean) / std;
+    userNorm[d] = Math.max(0, Math.min(100, 50 + z * 18));
+  });
+
+  const ranked = breeds.map(breed => {
+    let sumSqDiff = 0;
+    DIMS.forEach(d => {
+      const diff = breed.profile[d] - userNorm[d];
+      sumSqDiff += DIM_WEIGHTS[d] * diff * diff;
+    });
+    const distance = Math.sqrt(sumSqDiff / DIMS.length);
+    const rawScore = 100 - distance * 0.72;
+    const score = rawScore + CENTROID_BIAS[breed.name];
+    return { breed, score };
+  });
+
+  ranked.sort((a,b) => b.score - a.score);
+
+  const leaderScore = ranked[0].score;
+  const leaderQuality = Math.max(0, Math.min(1, (leaderScore - SCORE_FLOOR) / (SCORE_CEIL - SCORE_FLOOR)));
+  const topPct = 62 + Math.pow(leaderQuality, 0.6) * 36;
+
+  const GAP_STRETCH = 5.5;
+
+  return ranked.map(item => {
+    const gap = leaderScore - item.score;
+    const pct = Math.round(Math.max(8, Math.min(99, topPct - gap * GAP_STRETCH)));
+    return { breed: item.breed, pct, score: item.score };
+  });
+}
+
+function triggerResult() {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const ld = document.getElementById('screen-loading');
+  ld.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const breedNames = breeds.map(b=>b.name);
+  let i=0;
+  const el = document.getElementById('loading-breeds');
+  const iv = setInterval(()=>{
+    el.textContent = `Comparando con ${breedNames[i%breedNames.length]}…`;
+    i++;
+  },110);
+
+  setTimeout(()=>{
+    clearInterval(iv);
+    ld.style.display='none';
+    buildResult();
+    show('screen-result');
+  }, 3000);
+}
+
+// ══════════════════════════════════════════════════════
+// BUILD RESULT
+// ══════════════════════════════════════════════════════
+function buildResult() {
+  const ranking = computeRanking();
+  const top3 = ranking.slice(0,3);
+  const best = top3[0];
+  const gap = top3[0].pct - top3[1].pct;
+  currentResult = { breed: best.breed, pct: best.pct };
+
+  let marginNote, marginClass;
+  if (gap >= 8) {
+    marginNote = `Resultado claro: ${gap} puntos de ventaja sobre el segundo puesto.`;
+    marginClass = 'clear';
+  } else if (gap >= 4) {
+    marginNote = `Resultado bastante definido, con algo de ${top3[1].breed.name} en ti también.`;
+    marginClass = '';
+  } else {
+    marginNote = `Empate técnico con ${top3[1].breed.name} — eres una mezcla de ambos.`;
+    marginClass = 'tied';
+  }
+
+  const maxScore = Math.max(...DIMS.map(d=>scores[d]||0),1);
+
+  const barsHTML = DIMS.map(d=>{
+    const v = scores[d]||0;
+    const pBar = Math.round((v/maxScore)*100);
+    return `
+    <div class="bar-row">
+      <div class="bar-lbl">${DIM_META[d].label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%;background:${DIM_META[d].color}" data-pct="${pBar}"></div></div>
+      <div class="bar-val">${pBar}%</div>
+    </div>`;
+  }).join('');
+
+  const medals=['🥇','🥈','🥉'];
+  const rankClass=['r1','r2','r3'];
+  const podiumHTML = top3.map((item,i)=>`
+    <div class="pc ${rankClass[i]}">
+      <span class="pc-medal">${medals[i]}</span>
+      <div class="pc-emoji" ${CHAR_ICONS[item.breed.name]?'style="display:none"':''}>${item.breed.emoji}</div>
+      ${CHAR_ICONS[item.breed.name]?`<img class="pc-icon" src="${CHAR_ICONS[item.breed.name]}" alt="${item.breed.name}" onerror="this.style.display='none';this.previousElementSibling.style.display='block'">`:''}
+      <div class="pc-name">${item.breed.name}</div>
+      <div class="pc-pct">${item.pct}%</div>
+      ${i>0?`<div class="pc-gap">−${top3[0].pct-item.pct} pts</div>`:''}
+    </div>`).join('');
+
+  const b = best.breed;
+  const shareLabel = (typeof navigator !== 'undefined' && navigator.share) ? '📤 Compartir resultado' : '📋 Copiar resultado';
+  document.getElementById('result-content').innerHTML = `
+    <div class="share-card">
+      <span class="result-emoji" ${CHAR_ICONS[b.name]?'style="display:none"':''}>${b.emoji}</span>
+      ${CHAR_ICONS[b.name]?`<img class="result-icon" src="${CHAR_ICONS[b.name]}" alt="${b.name}" onerror="this.style.display='none';this.previousElementSibling.style.display='block'">`:''}
+      <div class="result-eyebrow">Eres...</div>
+      <div class="result-name">${b.name}</div>
+      <div class="result-tagline">"${b.tagline}"</div>
+      <div class="match-badge">✦ ${best.pct}% de coincidencia</div>
+      <div class="margin-note ${marginClass}">${marginNote}</div>
+      <div class="traits-row">${b.traits.map(t=>`<span class="trait-pill">${t}</span>`).join('')}</div>
+      <button class="btn-copy" data-breed-name="${b.name}" data-breed-pct="${best.pct}" data-breed-emoji="${b.emoji}" data-compat-good="${b.compat.good}" data-compat-clash="${b.compat.clash}" data-default-label="${shareLabel}" onclick="shareResult(this)">${shareLabel}</button>
+      <button class="btn-copy btn-download" data-breed-name="${b.name}" onclick="downloadResultImage(this)">🖼️ Descargar imagen</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head">✨ Lo que te define</div>
+      <div class="desc-box">${b.desc}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">🏆 Tu podio de personajes</div>
+      <div class="podium">${podiumHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">📊 Tu perfil de personalidad</div>
+      <div class="bars-box">${barsHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">💛 Compatibilidades</div>
+      <div class="compat-row">
+        <div class="cc good">
+          <div class="cc-lbl">✓ Conectas con</div>
+          <div class="cc-breed">${b.compat.good}</div>
+          <div class="cc-why">${b.compat.goodWhy}</div>
+        </div>
+        <div class="cc clash">
+          <div class="cc-lbl">✗ Chocas con</div>
+          <div class="cc-breed">${b.compat.clash}</div>
+          <div class="cc-why">${b.compat.clashWhy}</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-restart" onclick="restart()">🔄 Volver a empezar</button>
+  `;
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.pct+'%'});
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// COMPARTIR / COPIAR RESULTADO
+// ══════════════════════════════════════════════════════
+function buildShareText(name, pct, emoji, compatGood, compatClash) {
+  let text = `${emoji} Acabo de hacer el test "¿Qué personaje Disney eres?" y soy ${name} (${pct}% de coincidencia).\n\n`;
+  text += `💛 Conecto genial con: ${compatGood}\n`;
+  text += `⚡ Choco con: ${compatClash}\n\n`;
+  text += `¿Tú qué saldrías? Hazlo y vemos si somos compatibles o si vamos a chocar 👀✨`;
+  if (typeof location !== 'undefined' && location.href && location.protocol !== 'file:') {
+    text += `\n${location.href}`;
+  }
+  return text;
+}
+
+function legacyCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (err) {
+    return false;
+  }
+}
+
+function showButtonFeedback(btn, msg, revertMs) {
+  if (!btn) return;
+  const original = btn.dataset.defaultLabel || btn.textContent;
+  btn.textContent = msg;
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, revertMs || 2000);
+}
+
+async function shareResult(btn) {
+  const name = btn.dataset.breedName;
+  const pct = btn.dataset.breedPct;
+  const emoji = btn.dataset.breedEmoji || '✨';
+  const compatGood = btn.dataset.compatGood;
+  const compatClash = btn.dataset.compatClash;
+  const text = buildShareText(name, pct, emoji, compatGood, compatClash);
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ text, title: '¿Qué personaje Disney eres?' });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      showButtonFeedback(btn, '✓ ¡Copiado!');
+      return;
+    }
+    throw new Error('Clipboard API no disponible en este contexto');
+  } catch (err) {
+    const ok = legacyCopy(text);
+    showButtonFeedback(btn, ok ? '✓ ¡Copiado!' : '⚠️ No se pudo copiar, hazlo manualmente');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// DESCARGAR IMAGEN DE RESULTADO (canvas)
+// ══════════════════════════════════════════════════════
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  words.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+  return lines.length;
+}
+
+async function downloadResultImage(btn) {
+  if (!currentResult) return;
+  const originalLabel = btn.textContent;
+  btn.textContent = '⏳ Generando…';
+  btn.disabled = true;
+
+  try {
+    const { breed, pct } = currentResult;
+    const W = 1080, H = 1620;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#FFF8EE');
+    bgGrad.addColorStop(1, '#FEF0D8');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    const halo = ctx.createRadialGradient(W-120, 120, 0, W-120, 120, 420);
+    halo.addColorStop(0, 'rgba(224,122,58,.14)');
+    halo.addColorStop(1, 'rgba(224,122,58,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, W, H);
+
+    const cardX = 60, cardY = 90, cardW = W-120, cardH = 990;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.save();
+    roundRect(ctx, cardX, cardY, cardW, cardH, 40);
+    ctx.shadowColor = 'rgba(58,46,34,.12)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 14;
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    roundRect(ctx, cardX, cardY, cardW, cardH, 40);
+    ctx.strokeStyle = '#F7E2BB';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+
+    let cy = cardY + 90;
+
+    ctx.fillStyle = '#9C8870';
+    ctx.font = '700 30px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ERES...', W/2, cy);
+    cy += 70;
+
+    const iconMaxSize = 340;
+    const iconY = cy;
+    await new Promise((resolve) => {
+      const iconSrc = CHAR_ICONS[breed.name];
+      if (iconSrc) {
+        const img = new Image();
+        img.onload = () => {
+          const ratio = img.naturalWidth / img.naturalHeight;
+          let drawW = iconMaxSize, drawH = iconMaxSize;
+          if (ratio >= 1) { drawH = iconMaxSize / ratio; }
+          else { drawW = iconMaxSize * ratio; }
+          const drawX = W/2 - drawW/2;
+          const drawY = iconY + (iconMaxSize - drawH)/2;
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+          resolve();
+        };
+        img.onerror = () => {
+          ctx.font = `${iconMaxSize*0.7}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText(breed.emoji || '✨', W/2, iconY + iconMaxSize*0.75);
+          resolve();
+        };
+        img.src = iconSrc;
+      } else {
+        ctx.font = `${iconMaxSize*0.7}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(breed.emoji || '✨', W/2, iconY + iconMaxSize*0.75);
+        resolve();
+      }
+    });
+    cy = iconY + iconMaxSize + 70;
+
+    ctx.fillStyle = '#3A2E22';
+    ctx.font = '800 64px Lora, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(breed.name, W/2, cy);
+    cy += 56;
+
+    ctx.fillStyle = '#9C8870';
+    ctx.font = 'italic 600 32px Nunito, sans-serif';
+    const taglineLines = wrapCanvasText(ctx, `"${breed.tagline}"`, W/2, cy, cardW-140, 42);
+    cy += taglineLines * 42 + 40;
+
+    const starPart = '✦';
+    const textPart = ` ${pct}% de coincidencia`;
+    ctx.font = '800 34px Nunito, sans-serif';
+    const starW = ctx.measureText(starPart).width;
+    const textW = ctx.measureText(textPart).width;
+    const contentW = starW + textW;
+    const badgeW = contentW + 80;
+    const badgeH = 70;
+    const badgeTop = cy - badgeH + 14;
+    const badgeCenterY = badgeTop + badgeH / 2;
+    ctx.save();
+    roundRect(ctx, W/2 - badgeW/2, badgeTop, badgeW, badgeH, 35);
+    ctx.fillStyle = '#E07A3A';
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const contentStartX = W/2 - contentW/2;
+    ctx.fillText(starPart, contentStartX, badgeCenterY);
+    ctx.fillText(textPart, contentStartX + starW, badgeCenterY);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    cy += 90;
+
+    if (breed.traits && breed.traits.length) {
+      ctx.font = '700 26px Nunito, sans-serif';
+      const gap = 16;
+      const paddingX = 26, chipH = 56;
+      const widths = breed.traits.map(t => ctx.measureText(t).width + paddingX*2);
+      const totalW = widths.reduce((a,b)=>a+b,0) + gap*(widths.length-1);
+      let chipX = W/2 - totalW/2;
+      breed.traits.forEach((t, i) => {
+        const w = widths[i];
+        ctx.save();
+        roundRect(ctx, chipX, cy, w, chipH, chipH/2);
+        ctx.fillStyle = '#FDF0DC';
+        ctx.fill();
+        ctx.strokeStyle = '#ECD9BE';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = '#3A2E22';
+        ctx.textAlign = 'center';
+        ctx.fillText(t, chipX + w/2, cy + chipH/2 + 9);
+        chipX += w + gap;
+      });
+    }
+
+    let compatY = cardY + cardH + 60;
+    const compatCardW = cardW;
+    const compatCardH = 380;
+    const halfW = (compatCardW - 24) / 2;
+
+    function compatBlock(x, label, breedName, why, good) {
+      ctx.save();
+      roundRect(ctx, x, compatY, halfW, compatCardH, 30);
+      ctx.fillStyle = good ? '#F1F7EE' : '#FBEFEF';
+      ctx.fill();
+      ctx.strokeStyle = good ? '#CFE3C6' : '#EFCFCF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      let bx = x + halfW/2;
+      let by = compatY + 60;
+
+      ctx.font = '56px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(good ? '👍' : '👎', bx, by + 10);
+      by += 70;
+
+      ctx.font = '800 24px Nunito, sans-serif';
+      ctx.fillStyle = good ? '#5C8A4A' : '#B5504F';
+      ctx.fillText(label, bx, by);
+      by += 48;
+
+      ctx.font = '800 34px Lora, serif';
+      ctx.fillStyle = '#3A2E22';
+      ctx.fillText(breedName, bx, by);
+      by += 46;
+
+      ctx.font = '600 22px Nunito, sans-serif';
+      ctx.fillStyle = '#7A6B58';
+      wrapCanvasText(ctx, why, bx, by, halfW - 60, 30);
+    }
+
+    compatBlock(cardX, 'CONECTAS CON', breed.compat.good, breed.compat.goodWhy, true);
+    compatBlock(cardX + halfW + 24, 'CHOCAS CON', breed.compat.clash, breed.compat.clashWhy, false);
+
+    ctx.fillStyle = '#9C8870';
+    ctx.font = '700 28px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('¿Qué personaje Disney eres? ✨', W/2, H - 50);
+
+    const link = document.createElement('a');
+    const safeName = breed.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    link.download = `que-personaje-disney-eres-${safeName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    btn.textContent = '✓ ¡Descargada!';
+    setTimeout(() => { btn.textContent = originalLabel; btn.disabled = false; }, 1800);
+  } catch (err) {
+    console.error('Error generando imagen de resultado:', err);
+    btn.textContent = '⚠️ No se pudo generar';
+    setTimeout(() => { btn.textContent = originalLabel; btn.disabled = false; }, 2200);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// START / RESTART
+// ══════════════════════════════════════════════════════
+function startQuiz(){
+  current=0;
+  answers=new Array(Qs.length).fill(null);
+  DIMS.forEach(d=>scores[d]=0);
+  initDots();
+  show('screen-quiz');
+  renderQ();
+}
+function restart(){
+  startQuiz();
+}
+</script>
+</body>
+</html>
